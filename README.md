@@ -1,58 +1,105 @@
 # Drumbeats MCP
 
 [![CI](https://github.com/drumbeats-io/mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/drumbeats-io/mcp/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@drumbeats/mcp.svg)](https://www.npmjs.com/package/@drumbeats/mcp)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 
 The official [Model Context Protocol](https://modelcontextprotocol.io) server for
-**[Drumbeats](https://drumbeats.io)** — operate your monitoring from any AI client.
-Create monitors, triage incidents, and run HTTP / SSL / DNS checks in natural language.
-
-> **Status: pre-release scaffold.** This repository currently contains the project
-> skeleton — build tooling, the shared tool-layer plumbing, both transports, and
-> OSS standards. The 13 v1 tools and the full onboarding funnel land in upcoming
-> milestones. Interfaces may change before the first tagged release.
+**[Drumbeats](https://drumbeats.io)** — run your monitoring from any AI client.
+Create monitors, triage incidents, and run HTTP / SSL / DNS checks in plain language
+from Claude, Cursor, VS Code, or any MCP-capable tool.
 
 ## What is Drumbeats?
 
 Drumbeats is heartbeat and uptime monitoring for background jobs and services —
 cron jobs, queues, scheduled tasks, and HTTP endpoints. If a job stops checking in
-or a site goes down, Drumbeats alerts you. Learn more and sign up at
+or a site goes down, Drumbeats alerts you. Create a free account at
 **[drumbeats.io](https://drumbeats.io)**.
 
-## Three ways to connect
+## Install
 
-This server is designed around one shared tool layer exposed over two transports,
-so the same tools work everywhere. At launch you will be able to connect in three
-ways, in order of recommendation:
+Add the server to your AI client and set one environment variable — your Drumbeats
+account API key:
 
-1. **Hosted (recommended, zero setup).** Add the hosted server as a remote
-   connector in your AI client and authorize in the browser via OAuth — no API
-   keys to manage. _Coming at launch._
-2. **Self-host.** Run the exact same server yourself with Docker (see
-   [`Dockerfile`](./Dockerfile)) and point your client at your own instance.
-   _Setup guide coming at launch._
-3. **Local (stdio).** Run the published npm package locally with a Drumbeats
-   account API key, for IDE and offline use:
+```jsonc
+{
+  "mcpServers": {
+    "drumbeats": {
+      "command": "npx",
+      "args": ["-y", "@drumbeats/mcp"],
+      "env": { "DRUMBEATS_API_KEY": "dk_your_key" }
+    }
+  }
+}
+```
 
-   ```jsonc
-   {
-     "mcpServers": {
-       "drumbeats": {
-         "command": "npx",
-         "args": ["-y", "@drumbeats/mcp"],
-         "env": { "DRUMBEATS_API_KEY": "dk_your_account_key" }
-       }
-     }
-   }
-   ```
+1. **Get a key** — at [drumbeats.io](https://drumbeats.io) → **Account → API keys**. An
+   account-scoped key (`dk_…`) works across every project you own or belong to.
+2. **Add the config** — paste the block above into your client's MCP config and
+   restart it.
+3. **Ask** — *"List my monitors."*
 
-   _Published to npm at launch._
+**Claude Desktop:** prefer a one-click install — download the latest `.mcpb` bundle
+from the [Releases page](https://github.com/drumbeats-io/mcp/releases/latest),
+double-click it, and paste your key when prompted.
+
+Requires Node.js 22 when running via `npx`.
 
 ## Tools
 
-The v1 tool set (13 tools — the natural-language monitoring loop plus the
-HTTP/SSL/DNS diagnostics) is documented here once implemented. Not yet available
-in this scaffold.
+Fourteen tools over one shared layer. The HTTP / SSL / DNS diagnostics work with **no
+account and no API key** — point any client at the server and start checking.
+
+**Monitors & projects**
+| Tool | What it does |
+| --- | --- |
+| `list_projects` | List the projects your key can access (with notification channels and groups). |
+| `create_monitor` | Create a monitor — cron, heartbeat, or HTTP uptime. |
+| `list_monitors` | List a project's monitors with type, status, and schedule. |
+| `get_monitor` | Fetch one monitor by id, with its full configuration. |
+| `update_monitor` | Update an existing monitor (partial patch). |
+| `pause_monitor` | Pause a monitor (stops checks and alerts). |
+| `resume_monitor` | Resume a paused monitor. |
+
+**Observe & triage**
+| Tool | What it does |
+| --- | --- |
+| `get_monitor_history` | Recent pings, checks, and response times for a monitor. |
+| `get_uptime_summary` | Project-wide uptime / SLA rollup across monitors. |
+| `list_incidents` | List incidents (downtime and missed runs), filterable by status or monitor. |
+| `manage_incident` | Get, acknowledge, or resolve an incident. |
+
+**Diagnostics — no account required**
+| Tool | What it does |
+| --- | --- |
+| `check_http` | Check a URL's reachability, status code, and response time. |
+| `check_ssl` | Inspect a TLS certificate — validity, expiry, and issuer. |
+| `check_dns` | Resolve a hostname and report its DNS records. |
+
+## Example prompts
+
+```text
+List all my monitors and their current status.
+Create a cron monitor for my nightly backup that runs every day at 02:00 UTC.
+What's my uptime this month?
+Show me open incidents and acknowledge the most recent one.
+Is https://example.com up right now?            # no account needed
+Is the SSL certificate for example.com about to expire?   # no account needed
+```
+
+## Try it with zero setup
+
+The `check_http`, `check_ssl`, and `check_dns` tools need no Drumbeats account or API
+key. Add the server, leave `DRUMBEATS_API_KEY` unset, and ask *"Is my site up?"* before
+you sign up. When you're ready for continuous monitoring and alerts,
+[create a free account](https://drumbeats.io).
+
+## Configuration
+
+| Variable | Required | Default | Description |
+| --- | --- | --- | --- |
+| `DRUMBEATS_API_KEY` | For the monitoring tools | — | Account-scoped key (`dk_…`). Not needed for the diagnostics tools. |
+| `DRUMBEATS_API_BASE_URL` | No | `https://api.drumbeats.io` | Override the API base URL (e.g. for testing). |
 
 ## Development
 
@@ -68,6 +115,11 @@ npm test        # run the test suite
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for the contribution workflow and
 [SECURITY.md](./SECURITY.md) for the security policy. This is a security product —
 please report vulnerabilities privately.
+
+## Links
+
+- **Product:** [drumbeats.io](https://drumbeats.io) · [sign up](https://drumbeats.io)
+- **Issues:** [github.com/drumbeats-io/mcp/issues](https://github.com/drumbeats-io/mcp/issues)
 
 ## License
 
