@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1]
+
+### Added
+
+- Claude Desktop bundle icon: the `.mcpb` and npm package now ship `icon.png`,
+  referenced from `manifest.json`, so the connector shows the Drumbeats badge
+  instead of a placeholder.
+- Tool annotations on all 14 tools (`readOnlyHint`, `idempotentHint`,
+  `openWorldHint`) so AI clients can tell read-only queries, idempotent writes,
+  and external-reaching diagnostics apart.
+- Server-level `instructions`, shared by both transports, telling clients to
+  call `list_projects` first and summarising when each tool applies.
+
+## [0.1.0]
+
 ### Added
 
 - Initial repository scaffold: strict TypeScript (ESM) build config, Biome
@@ -22,4 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   typecheck, test, build, and an AI-authorship guard), CodeQL, and Dependabot.
 - Container build (multi-stage `Dockerfile`) and `.mcpb` bundle manifest stub.
 
-[Unreleased]: https://github.com/drumbeats-io/mcp/commits/main
+[Unreleased]: https://github.com/drumbeats-io/mcp/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/drumbeats-io/mcp/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/drumbeats-io/mcp/releases/tag/v0.1.0
