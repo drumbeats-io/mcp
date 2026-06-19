@@ -1,0 +1,18 @@
+# .mcpbignore — the runnable Claude Desktop bundle ships the compiled dist/ and
+# production node_modules only. Source, tests, and dev config live in the repo
+# but are not needed inside the .mcpb.
+src/
+test/
+tests/
+*.test.ts
+*.map
+tsconfig*.json
+biome.json
+biome.jsonc
+vitest.config.*
+.github/
+.vscode/
+.nvmrc
+.gitignore
+*.mcpb
+Dockerfile
