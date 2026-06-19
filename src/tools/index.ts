@@ -1,5 +1,8 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { registerListProjects } from './context/list-projects.js'
+import { registerCheckDns } from './diagnostics/check-dns.js'
+import { registerCheckHttp } from './diagnostics/check-http.js'
+import { registerCheckSsl } from './diagnostics/check-ssl.js'
 import { registerListIncidents } from './incidents/list-incidents.js'
 import { registerManageIncident } from './incidents/manage-incident.js'
 import { registerCreateMonitor } from './monitors/create-monitor.js'
@@ -31,6 +34,10 @@ const registry: readonly ToolRegistration[] = [
   registerGetUptimeSummary,
   registerListIncidents,
   registerManageIncident,
+  // Diagnostics (no account required)
+  registerCheckHttp,
+  registerCheckSsl,
+  registerCheckDns,
 ]
 
 /** Registers every tool against the given MCP server using `ctx`. */

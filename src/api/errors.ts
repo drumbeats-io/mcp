@@ -27,7 +27,12 @@ const STATUS_HINTS: Record<number, string> = {
 function extractDetail(body: unknown): string {
   if (body && typeof body === 'object') {
     const record = body as Record<string, unknown>
-    const candidate = record.message ?? record.error
+    let candidate: unknown = record.message ?? (typeof record.error === 'string' ? record.error : undefined)
+    // Some endpoints nest the reason under error: { code, message }.
+    if (candidate === undefined && record.error && typeof record.error === 'object') {
+      const nested = record.error as Record<string, unknown>
+      candidate = nested.message ?? nested.code
+    }
     if (typeof candidate === 'string' && candidate.length > 0 && candidate.length <= 200) {
       return candidate
     }
