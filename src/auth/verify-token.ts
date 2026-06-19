@@ -6,7 +6,7 @@ export interface VerifiedToken {
   readonly scopes: readonly Scope[]
   readonly audience: string
   readonly expiresAt: number
-  /** The raw token, forwarded as the Bearer credential to the REST API (§3.3-α). */
+  /** The raw token, forwarded as the Bearer credential to the REST API. */
   readonly raw: string
 }
 

@@ -1,5 +1,5 @@
 /**
- * OAuth token scope ↔ tool availability (the ADR-0015 vocabulary), reused
+ * OAuth token scope ↔ tool availability (the Drumbeats API key-scope model), reused
  * verbatim from the stdio account-key model. The hosted transport reads these
  * scopes from the verified OAuth token; stdio reads them from the account key.
  */

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { isScope, SCOPES, toolsForScopes } from '../src/auth/scope-map'
 
 describe('scope-map', () => {
-  it('exposes the ADR-0015 scope vocabulary', () => {
+  it('exposes the scope vocabulary', () => {
     expect([...SCOPES]).toEqual(['read', 'manage_monitors'])
   })
 

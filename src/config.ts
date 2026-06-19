@@ -12,7 +12,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(DEFAULT_PORT),
   DRUMBEATS_API_BASE_URL: urlString.default(DEFAULT_API_BASE_URL),
   DRUMBEATS_API_TIMEOUT_MS: z.coerce.number().int().positive().default(DEFAULT_TIMEOUT_MS),
-  // stdio transport: an account-scoped Drumbeats API key (dk_…), see ADR-0015.
+  // stdio transport: an account-scoped Drumbeats API key (dk_…).
   DRUMBEATS_API_KEY: z.string().min(1).optional(),
   // hosted transport: OAuth 2.1 resource-server identifiers, see src/auth.
   MCP_RESOURCE_URL: urlString.optional(),

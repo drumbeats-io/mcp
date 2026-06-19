@@ -14,7 +14,7 @@ const config = loadConfig()
 const app = express()
 app.use(express.json())
 
-// Liveness probe for Coolify on its own unprefixed path (build-plan §3.5).
+// Liveness probe on its own unprefixed path (for the reverse proxy / orchestrator healthcheck).
 app.get('/healthz', (_req: Request, res: Response) => {
   res.json({ status: 'ok', service: SERVER_NAME, version: SERVER_VERSION })
 })

@@ -22,7 +22,7 @@ ENV NODE_ENV=production
 WORKDIR /app
 
 # curl is used by the container healthcheck against the MCP's own /healthz
-# (its own unprefixed path — see build-plan §3.5).
+# (its own unprefixed path, separate from the upstream API's routing).
 RUN apk add --no-cache curl
 
 # Copy pruned dependencies, the build output, and the runtime manifest.
