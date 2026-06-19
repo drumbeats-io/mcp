@@ -104,7 +104,12 @@ export async function getUptimeSummary(ctx: ToolContext, args: GetUptimeSummaryA
 export function registerGetUptimeSummary(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
     'get_uptime_summary',
-    { title: 'Get uptime summary', description: DESCRIPTION, inputSchema: getUptimeSummaryInputShape },
+    {
+      title: 'Get uptime summary',
+      description: DESCRIPTION,
+      inputSchema: getUptimeSummaryInputShape,
+      annotations: { readOnlyHint: true },
+    },
     (args) => getUptimeSummary(ctx, args)
   )
 }

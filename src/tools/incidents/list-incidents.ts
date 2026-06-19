@@ -52,7 +52,12 @@ export async function listIncidents(ctx: ToolContext, args: ListIncidentsArgs): 
 export function registerListIncidents(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
     'list_incidents',
-    { title: 'List incidents', description: DESCRIPTION, inputSchema: listIncidentsInputShape },
+    {
+      title: 'List incidents',
+      description: DESCRIPTION,
+      inputSchema: listIncidentsInputShape,
+      annotations: { readOnlyHint: true },
+    },
     (args) => listIncidents(ctx, args)
   )
 }

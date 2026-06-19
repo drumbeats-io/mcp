@@ -85,7 +85,12 @@ export async function getMonitorHistory(ctx: ToolContext, args: GetMonitorHistor
 export function registerGetMonitorHistory(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
     'get_monitor_history',
-    { title: 'Get monitor history', description: DESCRIPTION, inputSchema: getMonitorHistoryInputShape },
+    {
+      title: 'Get monitor history',
+      description: DESCRIPTION,
+      inputSchema: getMonitorHistoryInputShape,
+      annotations: { readOnlyHint: true },
+    },
     (args) => getMonitorHistory(ctx, args)
   )
 }

@@ -5,7 +5,7 @@ import { DrumbeatsApiClient } from './api/client.js'
 import { loadConfig } from './config.js'
 import { registerTools } from './tools/index.js'
 import type { ToolContext } from './tools/types.js'
-import { SERVER_NAME, SERVER_VERSION } from './version.js'
+import { SERVER_INSTRUCTIONS, SERVER_NAME, SERVER_VERSION } from './version.js'
 
 /**
  * Local fallback entrypoint: stdio transport authenticated with a Drumbeats
@@ -27,7 +27,7 @@ async function main(): Promise<void> {
     }),
   }
 
-  const server = new McpServer({ name: SERVER_NAME, version: SERVER_VERSION })
+  const server = new McpServer({ name: SERVER_NAME, version: SERVER_VERSION }, { instructions: SERVER_INSTRUCTIONS })
   registerTools(server, ctx)
 
   const transport = new StdioServerTransport()

@@ -28,7 +28,12 @@ export async function getMonitor(ctx: ToolContext, args: GetMonitorArgs): Promis
 export function registerGetMonitor(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
     'get_monitor',
-    { title: 'Get monitor', description: DESCRIPTION, inputSchema: getMonitorInputShape },
+    {
+      title: 'Get monitor',
+      description: DESCRIPTION,
+      inputSchema: getMonitorInputShape,
+      annotations: { readOnlyHint: true },
+    },
     (args) => getMonitor(ctx, args)
   )
 }

@@ -37,7 +37,12 @@ export async function manageIncident(ctx: ToolContext, args: ManageIncidentArgs)
 export function registerManageIncident(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
     'manage_incident',
-    { title: 'Manage incident', description: DESCRIPTION, inputSchema: manageIncidentInputShape },
+    {
+      title: 'Manage incident',
+      description: DESCRIPTION,
+      inputSchema: manageIncidentInputShape,
+      annotations: { readOnlyHint: false, idempotentHint: true },
+    },
     (args) => manageIncident(ctx, args)
   )
 }

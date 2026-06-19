@@ -139,7 +139,12 @@ export async function listProjects(ctx: ToolContext, args: ListProjectsArgs): Pr
 export function registerListProjects(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
     'list_projects',
-    { title: 'List projects', description: DESCRIPTION, inputSchema: listProjectsInputShape },
+    {
+      title: 'List projects',
+      description: DESCRIPTION,
+      inputSchema: listProjectsInputShape,
+      annotations: { readOnlyHint: true },
+    },
     (args) => listProjects(ctx, args)
   )
 }

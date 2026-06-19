@@ -82,7 +82,12 @@ export async function updateMonitor(ctx: ToolContext, args: Record<string, unkno
 export function registerUpdateMonitor(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
     'update_monitor',
-    { title: 'Update monitor', description: DESCRIPTION, inputSchema: updateMonitorInputShape },
+    {
+      title: 'Update monitor',
+      description: DESCRIPTION,
+      inputSchema: updateMonitorInputShape,
+      annotations: { readOnlyHint: false, idempotentHint: true },
+    },
     (args) => updateMonitor(ctx, args)
   )
 }

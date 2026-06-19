@@ -36,7 +36,12 @@ export async function checkHttp(ctx: ToolContext, args: CheckHttpArgs): Promise<
 export function registerCheckHttp(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
     'check_http',
-    { title: 'Check HTTP', description: DESCRIPTION, inputSchema: checkHttpInputShape },
+    {
+      title: 'Check HTTP',
+      description: DESCRIPTION,
+      inputSchema: checkHttpInputShape,
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
     (args) => checkHttp(ctx, args)
   )
 }

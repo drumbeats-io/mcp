@@ -7,7 +7,7 @@ import { TokenVerificationError, verifyBearerToken } from './auth/verify-token.j
 import { loadConfig } from './config.js'
 import { registerTools } from './tools/index.js'
 import type { ToolContext } from './tools/types.js'
-import { SERVER_NAME, SERVER_VERSION } from './version.js'
+import { SERVER_INSTRUCTIONS, SERVER_NAME, SERVER_VERSION } from './version.js'
 
 const config = loadConfig()
 
@@ -63,7 +63,7 @@ async function handleMcpRequest(req: Request, res: Response): Promise<void> {
       }),
     }
 
-    const server = new McpServer({ name: SERVER_NAME, version: SERVER_VERSION })
+    const server = new McpServer({ name: SERVER_NAME, version: SERVER_VERSION }, { instructions: SERVER_INSTRUCTIONS })
     registerTools(server, ctx)
 
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined })

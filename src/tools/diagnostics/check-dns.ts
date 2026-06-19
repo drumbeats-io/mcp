@@ -31,7 +31,12 @@ export async function checkDns(ctx: ToolContext, args: CheckDnsArgs): Promise<Ca
 export function registerCheckDns(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
     'check_dns',
-    { title: 'Check DNS', description: DESCRIPTION, inputSchema: checkDnsInputShape },
+    {
+      title: 'Check DNS',
+      description: DESCRIPTION,
+      inputSchema: checkDnsInputShape,
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
     (args) => checkDns(ctx, args)
   )
 }

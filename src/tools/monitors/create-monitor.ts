@@ -108,7 +108,12 @@ export async function createMonitor(ctx: ToolContext, args: unknown): Promise<Ca
 export function registerCreateMonitor(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
     'create_monitor',
-    { title: 'Create monitor', description: DESCRIPTION, inputSchema: createMonitorInputShape },
+    {
+      title: 'Create monitor',
+      description: DESCRIPTION,
+      inputSchema: createMonitorInputShape,
+      annotations: { readOnlyHint: false },
+    },
     (args) => createMonitor(ctx, args)
   )
 }

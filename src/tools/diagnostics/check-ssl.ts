@@ -32,7 +32,12 @@ export async function checkSsl(ctx: ToolContext, args: CheckSslArgs): Promise<Ca
 export function registerCheckSsl(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
     'check_ssl',
-    { title: 'Check SSL', description: DESCRIPTION, inputSchema: checkSslInputShape },
+    {
+      title: 'Check SSL',
+      description: DESCRIPTION,
+      inputSchema: checkSslInputShape,
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
     (args) => checkSsl(ctx, args)
   )
 }

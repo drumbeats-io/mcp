@@ -40,6 +40,7 @@ export function registerPauseMonitor(server: McpServer, ctx: ToolContext): void 
       title: 'Pause monitor',
       description: 'Pause a monitor by id. It stops running checks and sending alerts until resumed.',
       inputSchema: pauseResumeInputShape,
+      annotations: { readOnlyHint: false, idempotentHint: true },
     },
     (args) => pauseMonitor(ctx, args)
   )
@@ -52,6 +53,7 @@ export function registerResumeMonitor(server: McpServer, ctx: ToolContext): void
       title: 'Resume monitor',
       description: 'Resume a paused monitor by id.',
       inputSchema: pauseResumeInputShape,
+      annotations: { readOnlyHint: false, idempotentHint: true },
     },
     (args) => resumeMonitor(ctx, args)
   )

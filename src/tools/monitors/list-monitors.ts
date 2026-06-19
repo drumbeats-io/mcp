@@ -37,7 +37,12 @@ export async function listMonitors(ctx: ToolContext, args: ListMonitorsArgs): Pr
 export function registerListMonitors(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
     'list_monitors',
-    { title: 'List monitors', description: DESCRIPTION, inputSchema: listMonitorsInputShape },
+    {
+      title: 'List monitors',
+      description: DESCRIPTION,
+      inputSchema: listMonitorsInputShape,
+      annotations: { readOnlyHint: true },
+    },
     (args) => listMonitors(ctx, args)
   )
 }
