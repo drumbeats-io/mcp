@@ -1,12 +1,4 @@
-/**
- * Minimal MCP tool-result error shape, kept decoupled from the SDK types so the
- * api layer has no transport dependency. Tool handlers return this rather than
- * throwing, so a raw 5xx or stack trace never reaches the model.
- */
-export interface ToolErrorResult {
-  readonly content: ReadonlyArray<{ readonly type: 'text'; readonly text: string }>
-  readonly isError: true
-}
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 
 /** Raised when the Drumbeats REST API returns a non-2xx response. */
 export class DrumbeatsApiError extends Error {
@@ -21,20 +13,49 @@ export class DrumbeatsApiError extends Error {
   }
 }
 
-/**
- * Maps any thrown error into a safe MCP tool-result.
- *
- * Scaffold stub: per-status, model-friendly messaging is refined in the tool
- * phase. For now it surfaces the status and message without leaking internals.
- */
-export function toToolErrorResult(error: unknown): ToolErrorResult {
-  let message: string
-  if (error instanceof DrumbeatsApiError) {
-    message = `Drumbeats API error (${error.status}): ${error.message}`
-  } else if (error instanceof Error) {
-    message = error.message
-  } else {
-    message = 'Unknown error'
+// Short, model-facing hints per status. We never echo a raw 5xx body or stack.
+const STATUS_HINTS: Record<number, string> = {
+  400: 'The request was rejected as invalid.',
+  401: 'Authentication failed — check that DRUMBEATS_API_KEY is set and valid.',
+  403: 'The API key lacks the scope required for this action.',
+  404: 'The requested resource was not found.',
+  409: 'The request conflicts with the current state.',
+  429: 'Rate limit exceeded — slow down and retry shortly.',
+}
+
+/** Extracts a short, safe detail string from an API error body, if present. */
+function extractDetail(body: unknown): string {
+  if (body && typeof body === 'object') {
+    const record = body as Record<string, unknown>
+    const candidate = record.message ?? record.error
+    if (typeof candidate === 'string' && candidate.length > 0 && candidate.length <= 200) {
+      return candidate
+    }
   }
-  return { content: [{ type: 'text', text: message }], isError: true }
+  return ''
+}
+
+function humanMessage(error: unknown): string {
+  if (error instanceof DrumbeatsApiError) {
+    const hint =
+      STATUS_HINTS[error.status] ?? (error.status >= 500 ? 'The Drumbeats API is temporarily unavailable.' : '')
+    const detail = extractDetail(error.body)
+    return [`Drumbeats API request failed (HTTP ${error.status}).`, hint, detail].filter(Boolean).join(' ')
+  }
+  if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
+    return 'The request to the Drumbeats API timed out.'
+  }
+  if (error instanceof Error && error.name === 'TypeError') {
+    return 'Could not reach the Drumbeats API (network error).'
+  }
+  return error instanceof Error ? `Unexpected error: ${error.message}` : 'Unexpected error.'
+}
+
+/**
+ * Maps any thrown error (non-2xx, network, timeout) into a clean MCP tool-result.
+ * Tool handlers return this instead of throwing, so a raw stack or 500 body never
+ * reaches the model.
+ */
+export function toToolErrorResult(error: unknown): CallToolResult {
+  return { content: [{ type: 'text', text: humanMessage(error) }], isError: true }
 }

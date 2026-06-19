@@ -5,39 +5,50 @@ export type ApiAuth =
   | { readonly kind: 'apiKey'; readonly apiKey: string }
   | { readonly kind: 'bearer'; readonly token: string }
 
-export interface DrumbeatsApiClientOptions {
-  readonly baseUrl: string
-  readonly auth: ApiAuth
-  /** Override the fetch implementation (used in tests). Defaults to global fetch. */
-  readonly fetchImpl?: typeof fetch
-}
-
 export interface ApiRequest {
   readonly method?: string
   readonly path: string
   readonly query?: Record<string, string | number | boolean | undefined>
   readonly body?: unknown
+  /** Optional caller signal, combined with the client's timeout. */
   readonly signal?: AbortSignal
 }
 
 /**
- * Thin wrapper around the Drumbeats REST API, shared by both transports.
- *
- * Its only transport-specific knowledge is the auth header: `X-API-Key` for the
- * stdio account-key path, `Authorization: Bearer` for the hosted OAuth path.
- * Non-2xx responses are normalized into {@link DrumbeatsApiError}.
- *
- * Scaffold stub: exposes a generic `request` only — per-endpoint helpers arrive
- * with the tools.
+ * Abstraction the tool layer depends on. Tools only ever touch this — never the
+ * concrete client or the transport — which keeps handlers testable without a
+ * network and transport-agnostic.
  */
-export class DrumbeatsApiClient {
+export interface ApiClient {
+  request<T = unknown>(req: ApiRequest): Promise<T>
+}
+
+export interface DrumbeatsApiClientOptions {
+  readonly baseUrl: string
+  readonly auth: ApiAuth
+  /** Per-request timeout in milliseconds. Defaults to 15s. */
+  readonly requestTimeoutMs?: number
+  /** Override fetch (used in tests). Defaults to the global fetch. */
+  readonly fetchImpl?: typeof fetch
+}
+
+const DEFAULT_TIMEOUT_MS = 15_000
+
+/**
+ * Thin REST client for the Drumbeats API, shared by both transports. It injects
+ * the auth header (X-API-Key for stdio account keys, Bearer for hosted OAuth),
+ * applies a timeout, parses JSON, and normalizes non-2xx into DrumbeatsApiError.
+ */
+export class DrumbeatsApiClient implements ApiClient {
   private readonly baseUrl: string
   private readonly auth: ApiAuth
+  private readonly timeoutMs: number
   private readonly fetchImpl: typeof fetch
 
   constructor(options: DrumbeatsApiClientOptions) {
     this.baseUrl = options.baseUrl.replace(/\/+$/, '')
     this.auth = options.auth
+    this.timeoutMs = options.requestTimeoutMs ?? DEFAULT_TIMEOUT_MS
     this.fetchImpl = options.fetchImpl ?? globalThis.fetch
   }
 
@@ -47,7 +58,6 @@ export class DrumbeatsApiClient {
       : { Authorization: `Bearer ${this.auth.token}` }
   }
 
-  /** Performs an authenticated JSON request, returning the parsed body. */
   async request<T = unknown>(req: ApiRequest): Promise<T> {
     const url = new URL(`${this.baseUrl}${req.path}`)
     for (const [key, value] of Object.entries(req.query ?? {})) {
@@ -61,15 +71,23 @@ export class DrumbeatsApiClient {
       headers['Content-Type'] = 'application/json'
     }
 
+    const timeoutSignal = AbortSignal.timeout(this.timeoutMs)
+    const signal = req.signal ? AbortSignal.any([req.signal, timeoutSignal]) : timeoutSignal
+
     const response = await this.fetchImpl(url, {
       method: req.method ?? 'GET',
       headers,
       body: req.body === undefined ? undefined : JSON.stringify(req.body),
-      signal: req.signal,
+      signal,
     })
 
     const text = await response.text()
-    const payload: unknown = text.length > 0 ? JSON.parse(text) : undefined
+    let payload: unknown
+    try {
+      payload = text.length > 0 ? JSON.parse(text) : undefined
+    } catch {
+      payload = text
+    }
 
     if (!response.ok) {
       throw new DrumbeatsApiError(response.status, response.statusText, payload)

@@ -59,6 +59,7 @@ async function handleMcpRequest(req: Request, res: Response): Promise<void> {
       api: new DrumbeatsApiClient({
         baseUrl: config.apiBaseUrl,
         auth: { kind: 'bearer', token: verified.raw },
+        requestTimeoutMs: config.requestTimeoutMs,
       }),
     }
 
