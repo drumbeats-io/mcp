@@ -1,0 +1,64 @@
+{
+	"name": "@drumbeats/mcp",
+	"version": "0.1.0",
+	"description": "Official Model Context Protocol (MCP) server for Drumbeats — operate your monitoring from any AI client: create monitors, triage incidents, and run HTTP/SSL/DNS checks in natural language.",
+	"license": "Apache-2.0",
+	"type": "module",
+	"author": "Lucky S Software (https://luckys.dev)",
+	"homepage": "https://drumbeats.io",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/drumbeats-io/mcp.git"
+	},
+	"bugs": {
+		"url": "https://github.com/drumbeats-io/mcp/issues"
+	},
+	"keywords": [
+		"mcp",
+		"model-context-protocol",
+		"drumbeats",
+		"monitoring",
+		"uptime",
+		"cron",
+		"heartbeat",
+		"observability",
+		"ai",
+		"llm"
+	],
+	"bin": {
+		"drumbeats-mcp": "dist/stdio.js"
+	},
+	"files": [
+		"dist",
+		"manifest.json"
+	],
+	"engines": {
+		"node": ">=22 <23"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"build": "tsc -p tsconfig.json",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"format": "biome format --write .",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"start": "node dist/server-http.js",
+		"start:stdio": "node dist/stdio.js"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.29.0",
+		"express": "^5.1.0",
+		"zod": "^4.4.3"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.3.5",
+		"@types/express": "^5.0.5",
+		"@types/node": "^24.10.1",
+		"typescript": "^5.9.3",
+		"vitest": "^4.1.9"
+	}
+}

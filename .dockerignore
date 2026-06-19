@@ -1,0 +1,34 @@
+# Dependencies and build artifacts (rebuilt inside the image)
+node_modules
+**/node_modules
+dist
+**/dist
+coverage
+
+# VCS / CI / tooling
+.git
+.github
+.gitignore
+.gitattributes
+.nvmrc
+
+# Tests and docs (not needed in the runtime image)
+test
+docs
+*.md
+
+# Local env / secrets
+.env
+.env.*
+
+# Editor / OS
+.vscode
+.idea
+.DS_Store
+
+# Misc
+*.log
+*.tsbuildinfo
+*.mcpb
+Dockerfile
+.dockerignore

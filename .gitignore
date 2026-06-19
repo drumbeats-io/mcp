@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Test / coverage
+coverage/
+.vitest/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# MCP bundle build artifact
+*.mcpb
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.tsbuildinfo

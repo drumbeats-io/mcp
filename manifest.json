@@ -1,0 +1,35 @@
+{
+	"dxt_version": "0.1",
+	"name": "drumbeats-mcp",
+	"display_name": "Drumbeats",
+	"version": "0.1.0",
+	"description": "Operate your Drumbeats monitoring from any AI client — create monitors, triage incidents, and run HTTP/SSL/DNS checks in natural language.",
+	"author": {
+		"name": "Lucky S Software",
+		"url": "https://luckys.dev"
+	},
+	"homepage": "https://drumbeats.io",
+	"documentation": "https://github.com/drumbeats-io/mcp",
+	"license": "Apache-2.0",
+	"server": {
+		"type": "node",
+		"entry_point": "dist/stdio.js",
+		"mcp_config": {
+			"command": "node",
+			"args": ["${__dirname}/dist/stdio.js"],
+			"env": {
+				"DRUMBEATS_API_KEY": "${user_config.api_key}"
+			}
+		}
+	},
+	"user_config": {
+		"api_key": {
+			"type": "string",
+			"title": "Drumbeats API key",
+			"description": "An account-scoped Drumbeats API key (dk_…). Create one in your Drumbeats account settings.",
+			"sensitive": true,
+			"required": true
+		}
+	},
+	"tools": []
+}

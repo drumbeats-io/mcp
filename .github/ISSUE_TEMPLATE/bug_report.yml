@@ -1,0 +1,59 @@
+name: Bug report
+description: Report a problem with the Drumbeats MCP server
+title: '[Bug]: '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug.
+
+        **Do not include secrets** (API keys, OAuth tokens) in this report. For
+        security vulnerabilities, please follow SECURITY.md and report privately
+        instead of opening a public issue.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and what you expected to happen instead.
+    validations:
+      required: true
+  - type: dropdown
+    id: transport
+    attributes:
+      label: Transport
+      options:
+        - Hosted (remote)
+        - Local (stdio)
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: client
+    attributes:
+      label: AI client
+      description: e.g. Claude Desktop, Cursor, VS Code, claude.ai
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: MCP server version
+      description: e.g. 0.1.0, or the git commit SHA
+    validations:
+      required: false
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps, prompts, or config needed to reproduce the issue.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste any relevant log output. Redact secrets first.
+      render: shell
+    validations:
+      required: false

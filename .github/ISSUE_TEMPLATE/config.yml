@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Drumbeats product & support
+    url: https://drumbeats.io
+    about: Questions about the Drumbeats product, accounts, or billing.
+  - name: Report a security vulnerability (private)
+    url: https://github.com/drumbeats-io/mcp/security/advisories/new
+    about: Report security issues privately — do not open a public issue.
+  - name: Questions & discussion
+    url: https://github.com/drumbeats-io/mcp/discussions
+    about: Ask questions and discuss usage with the community.
