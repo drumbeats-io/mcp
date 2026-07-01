@@ -33,44 +33,41 @@ afterAll(async () => {
   await new Promise<void>((resolve) => server.close(() => resolve()))
 })
 
-describe('hosted routing under the /mcp base path (Traefik forwards the prefix un-stripped)', () => {
-  it('serves liveness at root /healthz for the container HEALTHCHECK', async () => {
-    const res = await fetch(`${base}/healthz`)
-    expect(res.status).toBe(200)
-    expect((await res.json()).status).toBe('ok')
+/**
+ * The router is mounted at both `/` and `/mcp`, so the app answers whether the
+ * reverse proxy strips the `/mcp` prefix (Coolify's default) or forwards it.
+ */
+describe('hosted routing is tolerant of both strip and no-strip proxying', () => {
+  it('serves liveness at both /healthz and /mcp/healthz', async () => {
+    for (const path of ['/healthz', '/mcp/healthz']) {
+      const res = await fetch(`${base}${path}`)
+      expect(res.status).toBe(200)
+      expect((await res.json()).status).toBe('ok')
+    }
   })
 
-  it('also serves liveness at the prefixed /mcp/healthz for a proxy check', async () => {
-    const res = await fetch(`${base}/mcp/healthz`)
-    expect(res.status).toBe(200)
+  it('serves protected-resource metadata at both root and /mcp', async () => {
+    for (const path of ['/.well-known/oauth-protected-resource', '/mcp/.well-known/oauth-protected-resource']) {
+      const res = await fetch(`${base}${path}`)
+      expect(res.status).toBe(200)
+      const body = await res.json()
+      expect(body.resource).toBe('https://api.drumbeats.io/mcp')
+      expect(body.authorization_servers).toEqual(['https://api.drumbeats.io/id'])
+    }
   })
 
-  it('serves protected-resource metadata under /mcp so the advertised URL resolves', async () => {
-    const res = await fetch(`${base}/mcp/.well-known/oauth-protected-resource`)
-    expect(res.status).toBe(200)
-    const body = await res.json()
-    expect(body.resource).toBe('https://api.drumbeats.io/mcp')
-    expect(body.authorization_servers).toEqual(['https://api.drumbeats.io/id'])
-  })
-
-  it('does NOT serve metadata at the un-prefixed root path', async () => {
-    const res = await fetch(`${base}/.well-known/oauth-protected-resource`)
-    expect(res.status).toBe(404)
-  })
-
-  it('accepts POST at both /mcp and /mcp/ (trailing-slash robustness)', async () => {
-    for (const path of ['/mcp', '/mcp/']) {
+  it('accepts POST at /, /mcp and /mcp/ (401 without a bearer proves the route exists)', async () => {
+    for (const path of ['/', '/mcp', '/mcp/']) {
       const res = await fetch(`${base}${path}`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: '{}',
       })
-      // No bearer → 401 (proves the route exists; a 404 would mean it is unmounted).
       expect(res.status).toBe(401)
     }
   })
 
-  it('advertises the /mcp-prefixed metadata URL in WWW-Authenticate (advertised == served)', async () => {
+  it('advertises the absolute external metadata URL in WWW-Authenticate (served under either mount)', async () => {
     const res = await fetch(`${base}/mcp`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },

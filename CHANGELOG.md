@@ -12,11 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Hosted HTTP transport is now functional end to end. Its routes (the JSON-RPC
-  endpoint, RFC 9728 metadata, and a proxy-side liveness probe) mount under the
-  resource base path derived from `MCP_RESOURCE_URL` (e.g. `/mcp`), matching the
-  path-routed-without-strip reverse-proxy setup so advertised URLs equal served
-  paths; the container HEALTHCHECK keeps its root `/healthz`. The endpoint
-  verifies inbound OAuth 2.1 bearer tokens minted by the Drumbeats id service:
+  endpoint, RFC 9728 metadata, and a liveness probe) live on one router mounted
+  at both `/` and `/mcp`, so the app answers whether or not the reverse proxy
+  strips the `/mcp` prefix; `WWW-Authenticate` advertises the absolute external
+  metadata URL, which resolves under either mount. The endpoint verifies inbound
+  OAuth 2.1 bearer tokens minted by the Drumbeats id service:
   HS256 signature against the shared `JWT_SECRET`, audience
   (`https://api.drumbeats.io/mcp`, RFC 8707), expiry, and the `oauth` token
   type. The verified token is forwarded as the `Bearer` credential to the REST

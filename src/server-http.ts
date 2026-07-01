@@ -1,6 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
-import express, { type Express, type Request, type Response } from 'express'
+import express, { type Express, type Request, type Response, Router } from 'express'
 import { DrumbeatsApiClient } from './api/client.js'
 import { buildProtectedResourceMetadata, PROTECTED_RESOURCE_METADATA_PATH } from './auth/resource-metadata.js'
 import { toolsForScopes } from './auth/scope-map.js'
@@ -9,17 +9,6 @@ import { type AppConfig, loadConfig } from './config.js'
 import { registerTools } from './tools/index.js'
 import type { ToolContext } from './tools/types.js'
 import { SERVER_INSTRUCTIONS, SERVER_NAME, SERVER_VERSION } from './version.js'
-
-/**
- * The base path the hosted routes mount under, derived from the resource URL's
- * path. Traefik path-routes `/mcp` to this container WITHOUT stripping the
- * prefix, so the container must serve everything under `/mcp` for the
- * advertised `resource_metadata` URL to actually resolve. Empty in stdio-less
- * misconfiguration (no resourceUrl) — the hosted routes then serve at root.
- */
-function basePathFor(config: AppConfig): string {
-  return config.resourceUrl ? new URL(config.resourceUrl).pathname.replace(/\/+$/, '') : ''
-}
 
 function bearerFrom(req: Request): string | undefined {
   const header = req.header('authorization')
@@ -84,30 +73,21 @@ async function handleMcpRequest(config: AppConfig, req: Request, res: Response):
 }
 
 /**
- * Builds the Express app. Hosted routes mount under `basePath` (derived from
- * `config.resourceUrl`, e.g. `/mcp`) because Traefik forwards the prefix
- * un-stripped; advertised URLs therefore equal served paths. Liveness is
- * exposed BOTH at root `/healthz` (for the container's own localhost
- * HEALTHCHECK, which bypasses Traefik) and at `${basePath}/healthz` (for a
- * proxy-side healthcheck).
+ * The hosted routes, defined with root-relative paths on a single Router that is
+ * mounted at BOTH `/` and `/mcp`. This makes the app tolerant of the reverse
+ * proxy either stripping the `/mcp` prefix (Coolify's default, matching the
+ * id/beats/alerts apps) or forwarding it un-stripped — external `/mcp/...` and
+ * `/...` both resolve to the same handlers. `WWW-Authenticate` still advertises
+ * the absolute external metadata URL, which is served under either mount.
  */
-export function createApp(config: AppConfig): Express {
-  const app = express()
-  app.use(express.json())
+function hostedRouter(config: AppConfig): Router {
+  const router = Router()
 
-  const basePath = basePathFor(config)
-
-  const liveness = (_req: Request, res: Response): void => {
+  router.get('/healthz', (_req: Request, res: Response) => {
     res.json({ status: 'ok', service: SERVER_NAME, version: SERVER_VERSION })
-  }
-  app.get('/healthz', liveness)
-  if (basePath !== '') {
-    app.get(`${basePath}/healthz`, liveness)
-  }
+  })
 
-  // RFC 9728 discovery document, mounted under the resource base path so the
-  // advertised URL resolves through the un-stripped Traefik route.
-  app.get(`${basePath}${PROTECTED_RESOURCE_METADATA_PATH}`, (_req: Request, res: Response) => {
+  router.get(PROTECTED_RESOURCE_METADATA_PATH, (_req: Request, res: Response) => {
     if (config.resourceUrl === undefined || config.authServer === undefined) {
       res.status(501).json({ error: 'hosted OAuth metadata is not configured' })
       return
@@ -115,14 +95,26 @@ export function createApp(config: AppConfig): Express {
     res.json(buildProtectedResourceMetadata({ resourceUrl: config.resourceUrl, authServerUrl: config.authServer }))
   })
 
-  // The single MCP endpoint. Accept the base path with and without a trailing
-  // slash for client robustness (e.g. `/mcp` and `/mcp/`). When basePath is
-  // empty (no resourceUrl), fall back to root `/`.
-  const mcpPaths = basePath === '' ? ['/'] : [basePath, `${basePath}/`]
-  app.post(mcpPaths, (req: Request, res: Response) => {
+  // The single MCP endpoint at the mount root, tolerant of a trailing slash.
+  router.post('/{/}', (req: Request, res: Response) => {
     void handleMcpRequest(config, req, res)
   })
 
+  return router
+}
+
+/**
+ * Builds the Express app: the hosted router mounted at both `/` and `/mcp` so
+ * the deploy works whether or not the proxy strips the `/mcp` prefix.
+ */
+export function createApp(config: AppConfig): Express {
+  const app = express()
+  app.use(express.json())
+  // Mount the same router at both roots. Two explicit mounts (rather than a
+  // `['/', '/mcp']` array) so Express 5 resolves the root `/` GET routes too.
+  const router = hostedRouter(config)
+  app.use('/mcp', router)
+  app.use('/', router)
   return app
 }
 
