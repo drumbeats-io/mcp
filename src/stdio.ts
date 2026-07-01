@@ -22,6 +22,7 @@ async function main(): Promise<void> {
   const ctx: ToolContext = {
     api: new DrumbeatsApiClient({
       baseUrl: config.apiBaseUrl,
+      serviceBaseUrls: config.serviceBaseUrls,
       auth: { kind: 'apiKey', apiKey: config.apiKey },
       requestTimeoutMs: config.requestTimeoutMs,
     }),

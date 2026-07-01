@@ -32,6 +32,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Per-service API routing. The Drumbeats REST API is split across three services
+  by path prefix (`/id`, `/beats`, `/alerts`) with no unified `/v1` gateway, so
+  each request now names its target service and the client resolves
+  `${apex}${servicePrefix}${path}`. `DRUMBEATS_API_BASE_URL` is now the apex
+  (default `https://api.drumbeats.io`); optional `DRUMBEATS_{ID,BEATS,ALERTS}_BASE_URL`
+  overrides support self-hosting. This fixes tool calls 404-ing under a single
+  base and applies to both transports. `list_projects` reads from `id`
+  (`/v1/projects`) and `alerts` (notification channels/groups);
+  `get_uptime_summary` is on `beats` despite its `/v1/projects/{id}/…` path.
 - `MCP_RESOURCE_URL`, `MCP_AUTH_SERVER` and the new `JWT_SECRET` form an
   all-or-nothing hosted triad, validated at boot: a half-configured hosted app
   fails fast rather than per request. stdio mode (none set) stays valid.

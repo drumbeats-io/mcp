@@ -48,6 +48,7 @@ async function handleMcpRequest(config: AppConfig, req: Request, res: Response):
     const ctx: ToolContext = {
       api: new DrumbeatsApiClient({
         baseUrl: config.apiBaseUrl,
+        serviceBaseUrls: config.serviceBaseUrls,
         auth: { kind: 'bearer', token: verified.raw },
         requestTimeoutMs: config.requestTimeoutMs,
       }),

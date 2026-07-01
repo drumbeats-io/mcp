@@ -93,6 +93,10 @@ describe('list_projects handler', () => {
 
     expect(calls.find((c) => c.path === '/v1/notification-channels')?.query?.project_id).toBe('p1')
     expect(calls.find((c) => c.path === '/v1/notification-groups')?.query?.project_id).toBe('p1')
+    // /v1/projects is on id; notification-channels/groups are on alerts.
+    expect(calls.find((c) => c.path === '/v1/projects')?.service).toBe('id')
+    expect(calls.find((c) => c.path === '/v1/notification-channels')?.service).toBe('alerts')
+    expect(calls.find((c) => c.path === '/v1/notification-groups')?.service).toBe('alerts')
     expect(data.projects[0]?.notification_channels).toEqual([
       { id: 'c1', name: 'Email', type: 'EMAIL', enabled: true, is_default: true },
     ])

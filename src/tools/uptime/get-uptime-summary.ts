@@ -92,6 +92,8 @@ function formatUptimeSummary(summary: UptimeSummary): string {
 export async function getUptimeSummary(ctx: ToolContext, args: GetUptimeSummaryArgs): Promise<CallToolResult> {
   try {
     const summary = await ctx.api.request<UptimeSummary>({
+      // On BEATS despite the /v1/projects path — the bare /v1/projects list is on id.
+      service: 'beats',
       path: `/v1/projects/${encodeURIComponent(args.project_id)}/uptime-summary`,
       query: { period_hours: args.period_hours },
     })

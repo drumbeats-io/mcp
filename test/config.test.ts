@@ -14,6 +14,23 @@ describe('loadConfig hosted triad validation', () => {
     expect(config.jwtSecret).toBeUndefined()
   })
 
+  it('defaults the API base to the apex with no per-service overrides', () => {
+    const config = loadConfig({} as NodeJS.ProcessEnv)
+    expect(config.apiBaseUrl).toBe('https://api.drumbeats.io')
+    expect(config.serviceBaseUrls).toEqual({})
+  })
+
+  it('collects per-service base overrides when set', () => {
+    const config = loadConfig({
+      DRUMBEATS_ID_BASE_URL: 'https://id.internal.example',
+      DRUMBEATS_ALERTS_BASE_URL: 'https://alerts.internal.example',
+    } as unknown as NodeJS.ProcessEnv)
+    expect(config.serviceBaseUrls).toEqual({
+      id: 'https://id.internal.example',
+      alerts: 'https://alerts.internal.example',
+    })
+  })
+
   it('accepts a fully-configured hosted triad', () => {
     const config = loadConfig(HOSTED as unknown as NodeJS.ProcessEnv)
     expect(config.resourceUrl).toBe(HOSTED.MCP_RESOURCE_URL)

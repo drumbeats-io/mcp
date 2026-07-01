@@ -93,7 +93,7 @@ function toProjectSummary(project: RawProject): ProjectSummary {
  */
 export async function listProjects(ctx: ToolContext, args: ListProjectsArgs): Promise<CallToolResult> {
   try {
-    const { projects } = await ctx.api.request<{ projects: RawProject[] }>({ path: '/v1/projects' })
+    const { projects } = await ctx.api.request<{ projects: RawProject[] }>({ service: 'id', path: '/v1/projects' })
     const include = new Set(args.include ?? [])
     const wantChannels = include.has('channels')
     const wantGroups = include.has('groups')
@@ -103,6 +103,7 @@ export async function listProjects(ctx: ToolContext, args: ListProjectsArgs): Pr
         const summary = toProjectSummary(project)
         if (wantChannels) {
           const channels = await ctx.api.request<RawChannel[]>({
+            service: 'alerts',
             path: '/v1/notification-channels',
             query: { project_id: project.id },
           })
@@ -116,6 +117,7 @@ export async function listProjects(ctx: ToolContext, args: ListProjectsArgs): Pr
         }
         if (wantGroups) {
           const groups = await ctx.api.request<RawGroup[]>({
+            service: 'alerts',
             path: '/v1/notification-groups',
             query: { project_id: project.id },
           })

@@ -99,7 +99,10 @@ you sign up. When you're ready for continuous monitoring and alerts,
 | Variable | Required | Default | Description |
 | --- | --- | --- | --- |
 | `DRUMBEATS_API_KEY` | For the monitoring tools | — | Account-scoped key (`dk_…`). Not needed for the diagnostics tools. |
-| `DRUMBEATS_API_BASE_URL` | No | `https://api.drumbeats.io` | Override the API base URL (e.g. for testing). |
+| `DRUMBEATS_API_BASE_URL` | No | `https://api.drumbeats.io` | The apex REST URL. The Drumbeats API is split across services by path prefix (`/id`, `/beats`, `/alerts`); the client appends the per-service prefix to this apex per request. |
+| `DRUMBEATS_ID_BASE_URL` | No | `${apex}/id` | Self-host override: full base URL for the `id` service. |
+| `DRUMBEATS_BEATS_BASE_URL` | No | `${apex}/beats` | Self-host override: full base URL for the `beats` service. |
+| `DRUMBEATS_ALERTS_BASE_URL` | No | `${apex}/alerts` | Self-host override: full base URL for the `alerts` service. |
 
 ## Development
 
