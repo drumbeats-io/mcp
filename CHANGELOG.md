@@ -34,13 +34,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Per-service API routing. The Drumbeats REST API is split across three services
   by path prefix (`/id`, `/beats`, `/alerts`) with no unified `/v1` gateway, so
-  each request now names its target service and the client resolves
-  `${apex}${servicePrefix}${path}`. `DRUMBEATS_API_BASE_URL` is now the apex
-  (default `https://api.drumbeats.io`); optional `DRUMBEATS_{ID,BEATS,ALERTS}_BASE_URL`
-  overrides support self-hosting. This fixes tool calls 404-ing under a single
-  base and applies to both transports. `list_projects` reads from `id`
+  each tool request now names its target service and the client resolves
+  `${apex}${servicePrefix}${path}`. This fixes tool calls that 404'd under a
+  single base and applies to both transports. `list_projects` reads from `id`
   (`/v1/projects`) and `alerts` (notification channels/groups);
   `get_uptime_summary` is on `beats` despite its `/v1/projects/{id}/…` path.
+- **⚠️ Behavior change — `DRUMBEATS_API_BASE_URL` is now the API apex**
+  (default `https://api.drumbeats.io`), with the per-service prefix applied
+  internally per request. Previously it was used as a single base for all
+  routes. **If you are a stdio user who set `DRUMBEATS_API_BASE_URL` to a
+  service-specific base (e.g. `…/beats`), change it to the apex** — otherwise
+  requests resolve to a doubled prefix like `…/beats/beats/…`. New optional
+  `DRUMBEATS_ID_BASE_URL` / `DRUMBEATS_BEATS_BASE_URL` /
+  `DRUMBEATS_ALERTS_BASE_URL` overrides support self-hosting each service on an
+  independent host.
+- Strip-tolerant hosted routing: the hosted JSON-RPC endpoint, RFC 9728
+  metadata, and liveness probe are mounted at both `/` and `/mcp`, so the app
+  works whether or not the reverse proxy strips the `/mcp` path prefix.
 - `MCP_RESOURCE_URL`, `MCP_AUTH_SERVER` and the new `JWT_SECRET` form an
   all-or-nothing hosted triad, validated at boot: a half-configured hosted app
   fails fast rather than per request. stdio mode (none set) stays valid.
