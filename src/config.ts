@@ -17,6 +17,8 @@ const envSchema = z.object({
   // hosted transport: OAuth 2.1 resource-server identifiers, see src/auth.
   MCP_RESOURCE_URL: urlString.optional(),
   MCP_AUTH_SERVER: urlString.optional(),
+  // hosted transport: HS256 secret shared with the id service to verify bearer tokens.
+  JWT_SECRET: z.string().min(1).optional(),
 })
 
 export interface AppConfig {
@@ -31,11 +33,28 @@ export interface AppConfig {
   readonly resourceUrl?: string
   /** Present only for the hosted transport (authorization server base URL). */
   readonly authServer?: string
+  /** Present only for the hosted transport (HS256 secret shared with the id service). */
+  readonly jwtSecret?: string
 }
 
-/** Parses and validates process environment into a typed, immutable config. */
+/**
+ * Parses and validates process environment into a typed, immutable config.
+ *
+ * The hosted triad `{ resourceUrl, authServer, jwtSecret }` is all-or-nothing:
+ * a half-configured hosted app must fail fast at boot rather than per-request.
+ * stdio mode (none set) stays valid.
+ */
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   const parsed = envSchema.parse(env)
+
+  const hosted = [parsed.MCP_RESOURCE_URL, parsed.MCP_AUTH_SERVER, parsed.JWT_SECRET]
+  const setCount = hosted.filter((value) => value !== undefined).length
+  if (setCount > 0 && setCount < hosted.length) {
+    throw new Error(
+      'Incomplete hosted transport config: MCP_RESOURCE_URL, MCP_AUTH_SERVER and JWT_SECRET must all be set together (or all be unset for stdio mode).'
+    )
+  }
+
   return {
     nodeEnv: parsed.NODE_ENV,
     logLevel: parsed.LOG_LEVEL,
@@ -45,5 +64,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     apiKey: parsed.DRUMBEATS_API_KEY,
     resourceUrl: parsed.MCP_RESOURCE_URL,
     authServer: parsed.MCP_AUTH_SERVER,
+    jwtSecret: parsed.JWT_SECRET,
   }
 }

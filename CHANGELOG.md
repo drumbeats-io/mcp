@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-01
+
+### Added
+
+- Hosted HTTP transport is now functional end to end. The `/mcp` endpoint
+  verifies inbound OAuth 2.1 bearer tokens minted by the Drumbeats id service:
+  HS256 signature against the shared `JWT_SECRET`, audience
+  (`https://api.drumbeats.io/mcp`, RFC 8707), expiry, and the `oauth` token
+  type. The verified token is forwarded as the `Bearer` credential to the REST
+  API, which remains the authority on authorization.
+- Scope-gating: the tools a session exposes are filtered by the token's granted
+  scopes. `read` unlocks the nine read/diagnostic tools; `manage_monitors` adds
+  the five write/lifecycle tools. Unknown scopes are ignored. The stdio
+  transport is unaffected and still registers every tool.
+- Upgrade prompts on plan limits: when the REST API signals a plan/quota ceiling
+  (HTTP 402/429, or a plan-limit body code), tools now return a human-readable,
+  agent-actionable result pointing the user to https://drumbeats.io/pricing
+  instead of failing as an auth error.
+
+### Changed
+
+- `MCP_RESOURCE_URL`, `MCP_AUTH_SERVER` and the new `JWT_SECRET` form an
+  all-or-nothing hosted triad, validated at boot: a half-configured hosted app
+  fails fast rather than per request. stdio mode (none set) stays valid.
+
 ## [0.1.1]
 
 ### Added

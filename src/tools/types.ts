@@ -12,3 +12,9 @@ export interface ToolContext {
 
 /** A single tool's self-registration against the MCP server. */
 export type ToolRegistration = (server: McpServer, ctx: ToolContext) => void
+
+/** A named tool registration, so the registry can be gated by tool name. */
+export interface NamedTool {
+  readonly name: string
+  readonly register: ToolRegistration
+}

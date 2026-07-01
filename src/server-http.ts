@@ -3,6 +3,7 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import express, { type Request, type Response } from 'express'
 import { DrumbeatsApiClient } from './api/client.js'
 import { buildProtectedResourceMetadata, PROTECTED_RESOURCE_METADATA_PATH } from './auth/resource-metadata.js'
+import { toolsForScopes } from './auth/scope-map.js'
 import { TokenVerificationError, verifyBearerToken } from './auth/verify-token.js'
 import { loadConfig } from './config.js'
 import { registerTools } from './tools/index.js'
@@ -53,8 +54,16 @@ async function handleMcpRequest(req: Request, res: Response): Promise<void> {
     return
   }
 
+  if (config.resourceUrl === undefined || config.jwtSecret === undefined) {
+    res.status(501).json({ error: 'hosted OAuth transport is not configured' })
+    return
+  }
+
   try {
-    const verified = await verifyBearerToken(token, { expectedAudience: config.resourceUrl ?? '' })
+    const verified = await verifyBearerToken(token, {
+      expectedAudience: config.resourceUrl,
+      secret: config.jwtSecret,
+    })
     const ctx: ToolContext = {
       api: new DrumbeatsApiClient({
         baseUrl: config.apiBaseUrl,
@@ -64,7 +73,7 @@ async function handleMcpRequest(req: Request, res: Response): Promise<void> {
     }
 
     const server = new McpServer({ name: SERVER_NAME, version: SERVER_VERSION }, { instructions: SERVER_INSTRUCTIONS })
-    registerTools(server, ctx)
+    registerTools(server, ctx, toolsForScopes(verified.scopes))
 
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined })
     res.on('close', () => {

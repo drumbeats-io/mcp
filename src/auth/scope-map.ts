@@ -9,14 +9,22 @@ export type Scope = (typeof SCOPES)[number]
 
 /**
  * Tools unlocked by each scope. `read` is always granted; `manage_monitors`
- * adds the write/lifecycle tools.
- *
- * Scaffold stub: the tool-name lists are populated in the tool phase. The
- * structure exists from day one so the least-privilege gate is real.
+ * adds the write/lifecycle tools. Names are the exact tool `name` strings
+ * registered under `src/tools/**`.
  */
 export const TOOLS_BY_SCOPE: Readonly<Record<Scope, readonly string[]>> = {
-  read: [],
-  manage_monitors: [],
+  read: [
+    'list_projects',
+    'list_monitors',
+    'get_monitor',
+    'get_monitor_history',
+    'get_uptime_summary',
+    'list_incidents',
+    'check_http',
+    'check_ssl',
+    'check_dns',
+  ],
+  manage_monitors: ['create_monitor', 'update_monitor', 'pause_monitor', 'resume_monitor', 'manage_incident'],
 }
 
 /** Returns the set of tool names available for a set of granted scopes. */

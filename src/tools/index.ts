@@ -11,38 +11,47 @@ import { registerGetMonitorHistory } from './monitors/get-monitor-history.js'
 import { registerListMonitors } from './monitors/list-monitors.js'
 import { registerPauseMonitor, registerResumeMonitor } from './monitors/pause-resume.js'
 import { registerUpdateMonitor } from './monitors/update-monitor.js'
-import type { ToolContext, ToolRegistration } from './types.js'
+import type { NamedTool, ToolContext } from './types.js'
 import { registerGetUptimeSummary } from './uptime/get-uptime-summary.js'
 
 /**
  * The shared tool layer — the single registration point consumed by both
  * transports (one definition, two transports). Add a tool by appending its
- * registration function here.
+ * `{ name, register }` entry here. `name` MUST match the tool's registered
+ * name so the hosted transport can scope-gate by it (see auth/scope-map).
  */
-const registry: readonly ToolRegistration[] = [
+const registry: readonly NamedTool[] = [
   // Context
-  registerListProjects,
+  { name: 'list_projects', register: registerListProjects },
   // Monitor lifecycle
-  registerCreateMonitor,
-  registerListMonitors,
-  registerGetMonitor,
-  registerUpdateMonitor,
-  registerPauseMonitor,
-  registerResumeMonitor,
+  { name: 'create_monitor', register: registerCreateMonitor },
+  { name: 'list_monitors', register: registerListMonitors },
+  { name: 'get_monitor', register: registerGetMonitor },
+  { name: 'update_monitor', register: registerUpdateMonitor },
+  { name: 'pause_monitor', register: registerPauseMonitor },
+  { name: 'resume_monitor', register: registerResumeMonitor },
   // Observation & triage
-  registerGetMonitorHistory,
-  registerGetUptimeSummary,
-  registerListIncidents,
-  registerManageIncident,
+  { name: 'get_monitor_history', register: registerGetMonitorHistory },
+  { name: 'get_uptime_summary', register: registerGetUptimeSummary },
+  { name: 'list_incidents', register: registerListIncidents },
+  { name: 'manage_incident', register: registerManageIncident },
   // Diagnostics (no account required)
-  registerCheckHttp,
-  registerCheckSsl,
-  registerCheckDns,
+  { name: 'check_http', register: registerCheckHttp },
+  { name: 'check_ssl', register: registerCheckSsl },
+  { name: 'check_dns', register: registerCheckDns },
 ]
 
-/** Registers every tool against the given MCP server using `ctx`. */
-export function registerTools(server: McpServer, ctx: ToolContext): void {
-  for (const register of registry) {
-    register(server, ctx)
+/**
+ * Registers tools against the given MCP server using `ctx`.
+ *
+ * When `allowedNames` is provided (the hosted, scope-gated path), only tools
+ * whose name is in the set are registered. When omitted (the stdio path),
+ * every tool is registered — unchanged behavior.
+ */
+export function registerTools(server: McpServer, ctx: ToolContext, allowedNames?: ReadonlySet<string>): void {
+  for (const tool of registry) {
+    if (allowedNames === undefined || allowedNames.has(tool.name)) {
+      tool.register(server, ctx)
+    }
   }
 }

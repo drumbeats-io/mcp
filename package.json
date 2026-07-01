@@ -1,6 +1,6 @@
 {
 	"name": "@drumbeats/mcp",
-	"version": "0.1.1",
+	"version": "0.2.0",
 	"description": "Official Model Context Protocol (MCP) server for Drumbeats — operate your monitoring from any AI client: create monitors, triage incidents, and run HTTP/SSL/DNS checks in natural language.",
 	"license": "Apache-2.0",
 	"type": "module",
@@ -53,11 +53,13 @@
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^1.29.0",
 		"express": "^5.1.0",
+		"jsonwebtoken": "^9.0.3",
 		"zod": "^4.4.3"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.5",
 		"@types/express": "^5.0.5",
+		"@types/jsonwebtoken": "^9.0.10",
 		"@types/node": "^22.19.21",
 		"typescript": "^6.0.3",
 		"vitest": "^4.1.9"
