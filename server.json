@@ -1,0 +1,36 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.drumbeats-io/mcp",
+  "description": "Operate Drumbeats monitoring from any AI client: cron/uptime monitors, incidents, HTTP/SSL/DNS.",
+  "repository": {
+    "url": "https://github.com/drumbeats-io/mcp",
+    "source": "github"
+  },
+  "version": "0.2.0",
+  "websiteUrl": "https://drumbeats.io",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "@drumbeats/mcp",
+      "version": "0.2.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "DRUMBEATS_API_KEY",
+          "description": "Account-scoped Drumbeats API key (dk_...). Optional — the HTTP/SSL/DNS diagnostic tools work with no key.",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://api.drumbeats.io/mcp"
+    }
+  ]
+}
