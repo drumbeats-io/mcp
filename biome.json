@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
 	"files": {
 		"ignoreUnknown": true,
 		"includes": ["**/*.ts", "**/*.js", "**/*.json"]
@@ -11,7 +11,7 @@
 	},
 	"linter": {
 		"rules": {
-			"recommended": true,
+			"preset": "recommended",
 			"style": {
 				"useConst": "error",
 				"noUnusedTemplateLiteral": "error",
