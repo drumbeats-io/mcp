@@ -88,13 +88,29 @@ function hostedRouter(config: AppConfig): Router {
     res.json({ status: 'ok', service: SERVER_NAME, version: SERVER_VERSION })
   })
 
-  router.get(PROTECTED_RESOURCE_METADATA_PATH, (_req: Request, res: Response) => {
+  const serveResourceMetadata = (_req: Request, res: Response): void => {
     if (config.resourceUrl === undefined || config.authServer === undefined) {
       res.status(501).json({ error: 'hosted OAuth metadata is not configured' })
       return
     }
     res.json(buildProtectedResourceMetadata({ resourceUrl: config.resourceUrl, authServerUrl: config.authServer }))
-  })
+  }
+
+  router.get(PROTECTED_RESOURCE_METADATA_PATH, serveResourceMetadata)
+
+  // RFC 9728 §3.2: for a resource identifier WITH a path component (ours is
+  // https://api.drumbeats.io/mcp), the canonical metadata URL inserts the
+  // well-known segment between host and path — externally
+  // `/.well-known/oauth-protected-resource/mcp`. Strict clients (e.g. the
+  // Smithery gateway) derive that URL themselves instead of reading
+  // `WWW-Authenticate`, so serve it too. Registered on both shapes the proxy
+  // can hand us: the full inserted path (no-strip) and the bare resource path
+  // left after the proxy strips the well-known prefix (strip).
+  const resourcePath = config.resourceUrl === undefined ? undefined : new URL(config.resourceUrl).pathname
+  if (resourcePath !== undefined && resourcePath !== '/' && resourcePath !== '') {
+    router.get(`${PROTECTED_RESOURCE_METADATA_PATH}${resourcePath}`, serveResourceMetadata)
+    router.get(resourcePath, serveResourceMetadata)
+  }
 
   // The single MCP endpoint at the mount root, tolerant of a trailing slash.
   router.post('/{/}', (req: Request, res: Response) => {
