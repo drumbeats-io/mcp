@@ -112,6 +112,16 @@ function hostedRouter(config: AppConfig): Router {
     router.get(resourcePath, serveResourceMetadata)
   }
 
+  // Smithery-style static server card: lets directory scanners read identity
+  // metadata without completing the OAuth flow (their scanners can't consent).
+  // Served on both proxy shapes: the full origin path (no-strip) and the bare
+  // filename left after the proxy strips the /.well-known/mcp prefix (strip).
+  const serveServerCard = (_req: Request, res: Response): void => {
+    res.json({ serverInfo: { name: SERVER_NAME, version: SERVER_VERSION } })
+  }
+  router.get('/.well-known/mcp/server-card.json', serveServerCard)
+  router.get('/server-card.json', serveServerCard)
+
   // The single MCP endpoint at the mount root, tolerant of a trailing slash.
   router.post('/{/}', (req: Request, res: Response) => {
     void handleMcpRequest(config, req, res)

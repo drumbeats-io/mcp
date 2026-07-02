@@ -57,6 +57,16 @@ describe('hosted routing is tolerant of both strip and no-strip proxying', () =>
     }
   })
 
+  it('serves the static server card in both proxy shapes', async () => {
+    for (const path of ['/.well-known/mcp/server-card.json', '/server-card.json']) {
+      const res = await fetch(`${base}${path}`)
+      expect(res.status).toBe(200)
+      const body = await res.json()
+      expect(body.serverInfo.name).toBeTruthy()
+      expect(body.serverInfo.version).toBeTruthy()
+    }
+  })
+
   it('serves the RFC 9728 canonical path-inserted metadata URL in both proxy shapes', async () => {
     // No-strip: the proxy forwards the full inserted path; strip: only the
     // resource path remains after the well-known prefix is removed.
