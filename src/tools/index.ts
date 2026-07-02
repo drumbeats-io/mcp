@@ -11,6 +11,8 @@ import { registerGetMonitorHistory } from './monitors/get-monitor-history.js'
 import { registerListMonitors } from './monitors/list-monitors.js'
 import { registerPauseMonitor, registerResumeMonitor } from './monitors/pause-resume.js'
 import { registerUpdateMonitor } from './monitors/update-monitor.js'
+import { registerCreateProject } from './projects/create-project.js'
+import { registerUpdateProject } from './projects/update-project.js'
 import type { NamedTool, ToolContext } from './types.js'
 import { registerGetUptimeSummary } from './uptime/get-uptime-summary.js'
 
@@ -23,6 +25,9 @@ import { registerGetUptimeSummary } from './uptime/get-uptime-summary.js'
 const registry: readonly NamedTool[] = [
   // Context
   { name: 'list_projects', register: registerListProjects },
+  // Project lifecycle
+  { name: 'create_project', register: registerCreateProject },
+  { name: 'update_project', register: registerUpdateProject },
   // Monitor lifecycle
   { name: 'create_monitor', register: registerCreateMonitor },
   { name: 'list_monitors', register: registerListMonitors },

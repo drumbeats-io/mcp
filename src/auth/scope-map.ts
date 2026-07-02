@@ -4,13 +4,16 @@
  * scopes from the verified OAuth token; stdio reads them from the account key.
  */
 
-export const SCOPES = ['read', 'manage_monitors'] as const
+export const SCOPES = ['read', 'manage_monitors', 'manage_projects'] as const
 export type Scope = (typeof SCOPES)[number]
 
 /**
  * Tools unlocked by each scope. `read` is always granted; `manage_monitors`
- * adds the write/lifecycle tools. Names are the exact tool `name` strings
- * registered under `src/tools/**`.
+ * adds the monitor write/lifecycle tools; `manage_projects` adds the project
+ * write tools. These names and scope strings mirror the Drumbeats API-key scope
+ * model (`read | manage_monitors | manage_projects | manage_notifications |
+ * destroy`); we surface only the scopes whose tools this server exposes. Names
+ * are the exact tool `name` strings registered under `src/tools/**`.
  */
 export const TOOLS_BY_SCOPE: Readonly<Record<Scope, readonly string[]>> = {
   read: [
@@ -25,6 +28,7 @@ export const TOOLS_BY_SCOPE: Readonly<Record<Scope, readonly string[]>> = {
     'check_dns',
   ],
   manage_monitors: ['create_monitor', 'update_monitor', 'pause_monitor', 'resume_monitor', 'manage_incident'],
+  manage_projects: ['create_project', 'update_project'],
 }
 
 /** Returns the set of tool names available for a set of granted scopes. */

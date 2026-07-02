@@ -22,6 +22,8 @@ const ctx: ToolContext = {
 
 const ALL_TOOLS = [
   'list_projects',
+  'create_project',
+  'update_project',
   'create_monitor',
   'list_monitors',
   'get_monitor',
@@ -64,12 +66,27 @@ describe('registerTools scope-gating', () => {
     expect(names).not.toContain('manage_incident')
   })
 
-  it('a manage token adds the write tools', () => {
+  it('a manage_monitors token adds the monitor write tools but not the project ones', () => {
     const { server, names } = recordingServer()
     registerTools(server, ctx, toolsForScopes(['read', 'manage_monitors']))
-    expect(names.sort()).toEqual([...ALL_TOOLS].sort())
     expect(names).toContain('create_monitor')
     expect(names).toContain('manage_incident')
+    expect(names).not.toContain('create_project')
+    expect(names).not.toContain('update_project')
+  })
+
+  it('a manage_projects token adds the project write tools', () => {
+    const { server, names } = recordingServer()
+    registerTools(server, ctx, toolsForScopes(['read', 'manage_projects']))
+    expect(names).toContain('create_project')
+    expect(names).toContain('update_project')
+    expect(names).not.toContain('create_monitor')
+  })
+
+  it('all write scopes together expose every tool', () => {
+    const { server, names } = recordingServer()
+    registerTools(server, ctx, toolsForScopes(['read', 'manage_monitors', 'manage_projects']))
+    expect(names.sort()).toEqual([...ALL_TOOLS].sort())
   })
 
   it('an empty allow-set registers nothing', () => {

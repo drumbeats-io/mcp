@@ -47,13 +47,15 @@ Requires Node.js 22 when running via `npx`.
 
 ## Tools
 
-Fourteen tools over one shared layer. The HTTP / SSL / DNS diagnostics work with **no
+Sixteen tools over one shared layer. The HTTP / SSL / DNS diagnostics work with **no
 account and no API key** — point any client at the server and start checking.
 
-**Monitors & projects**
+**Projects & monitors**
 | Tool | What it does |
 | --- | --- |
 | `list_projects` | List the projects your key can access (with notification channels and groups). |
+| `create_project` | Create a new project (account-scoped key with `manage_projects`). |
+| `update_project` | Update a project's name or description (partial patch). |
 | `create_monitor` | Create a monitor — cron, heartbeat, or HTTP uptime. |
 | `list_monitors` | List a project's monitors with type, status, and schedule. |
 | `get_monitor` | Fetch one monitor by id, with its full configuration. |
