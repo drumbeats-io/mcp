@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-07-02
+
+### Added
+
+- `mcpName` field (`io.github.drumbeats-io/mcp`) in `package.json` and a `server.json` manifest, enabling publication to the [Official MCP Registry](https://registry.modelcontextprotocol.io). The manifest lists both the npm/stdio package and the hosted streamable-HTTP remote at `https://api.drumbeats.io/mcp`. No runtime changes.
+
 ## [0.2.0] - 2026-07-01
 
 ### Added

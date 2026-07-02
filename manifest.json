@@ -2,7 +2,7 @@
 	"dxt_version": "0.1",
 	"name": "drumbeats-mcp",
 	"display_name": "Drumbeats",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"icon": "icon.png",
 	"description": "Operate your Drumbeats monitoring from any AI client — create monitors, triage incidents, and run HTTP/SSL/DNS checks in natural language.",
 	"author": {

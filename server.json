@@ -6,21 +6,21 @@
     "url": "https://github.com/drumbeats-io/mcp",
     "source": "github"
   },
-  "version": "0.2.0",
+  "version": "0.2.1",
   "websiteUrl": "https://drumbeats.io",
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@drumbeats/mcp",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "transport": {
         "type": "stdio"
       },
       "environmentVariables": [
         {
           "name": "DRUMBEATS_API_KEY",
-          "description": "Account-scoped Drumbeats API key (dk_...). Optional — the HTTP/SSL/DNS diagnostic tools work with no key.",
+          "description": "Account-scoped Drumbeats API key (dk_...). Optional \u2014 the HTTP/SSL/DNS diagnostic tools work with no key.",
           "isRequired": false,
           "isSecret": true
         }
