@@ -1,8 +1,16 @@
 import { describe, expect, it } from 'vitest'
+import { z } from 'zod'
 import type { ApiRequest } from '../../src/api/client'
 import { DrumbeatsApiError } from '../../src/api/errors'
-import { updateMonitor } from '../../src/tools/monitors/update-monitor'
-import { ctxWith } from '../helpers'
+import {
+  updateMonitor,
+  updateMonitorInputShape,
+  updateMonitorOutputShape,
+} from '../../src/tools/monitors/update-monitor'
+import { ctxWith, structuredOf } from '../helpers'
+
+const inputSchema = z.object(updateMonitorInputShape)
+const outputSchema = z.object(updateMonitorOutputShape)
 
 describe('update_monitor', () => {
   it('PATCHes only the provided fields', async () => {
@@ -31,5 +39,28 @@ describe('update_monitor', () => {
     })
     const result = await updateMonitor(ctx, { monitor_id: 'missing', name: 'x' })
     expect(result.isError).toBe(true)
+  })
+
+  it('structuredContent validates against the declared outputSchema', async () => {
+    const ctx = ctxWith(() => ({ monitor: { id: 'm1', name: 'New name' } }))
+    const result = await updateMonitor(ctx, { monitor_id: 'm1', name: 'New name' })
+    expect(outputSchema.safeParse(structuredOf(result)).success).toBe(true)
+  })
+
+  describe('input shape (validated by the SDK, not the handler)', () => {
+    it('accepts a null slug (matches the API, which allows clearing it on update)', () => {
+      const parsed = inputSchema.safeParse({ monitor_id: 'm1', slug: null })
+      expect(parsed.success).toBe(true)
+    })
+
+    it('accepts grace_period_seconds at the API floor of 15', () => {
+      const parsed = inputSchema.safeParse({ monitor_id: 'm1', grace_period_seconds: 15 })
+      expect(parsed.success).toBe(true)
+    })
+
+    it('rejects grace_period_seconds below the API floor of 15 (was min 0, tightened to match core)', () => {
+      const parsed = inputSchema.safeParse({ monitor_id: 'm1', grace_period_seconds: 5 })
+      expect(parsed.success).toBe(false)
+    })
   })
 })

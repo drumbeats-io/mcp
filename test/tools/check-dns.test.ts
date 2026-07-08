@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
 import type { ApiRequest } from '../../src/api/client'
-import { checkDns, checkDnsInputShape } from '../../src/tools/diagnostics/check-dns'
-import { ctxWith, dataOf } from '../helpers'
+import { checkDns, checkDnsInputShape, checkDnsOutputShape } from '../../src/tools/diagnostics/check-dns'
+import { ctxWith, dataOf, structuredOf } from '../helpers'
+
+const outputSchema = z.object(checkDnsOutputShape)
 
 describe('check_dns', () => {
   it('requires a hostname', () => {
@@ -19,5 +21,25 @@ describe('check_dns', () => {
     expect(calls[0]?.path).toBe('/v1/tools/check-dns')
     expect(calls[0]?.body).toMatchObject({ hostname: 'example.com' })
     expect(data.ok).toBe(true)
+  })
+
+  it('a full 200 response validates against the declared outputSchema', async () => {
+    const ctx = ctxWith(() => ({
+      ok: true,
+      hostname_checked: 'example.com',
+      records: {
+        A: ['203.0.113.10'],
+        AAAA: [],
+        CNAME: [],
+        MX: [{ exchange: 'mail.example.com', priority: 10 }],
+        NS: ['ns1.example.com'],
+      },
+      resolution_errors: { AAAA: 'NODATA' },
+      all_failed: false,
+      checked_at: '2026-01-26T02:00:00.000Z',
+      check_region: 'us-east',
+    }))
+    const result = await checkDns(ctx, { hostname: 'example.com' })
+    expect(outputSchema.safeParse(structuredOf(result)).success).toBe(true)
   })
 })

@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
+import { z } from 'zod'
 import type { ApiRequest } from '../../src/api/client'
-import { createMonitor } from '../../src/tools/monitors/create-monitor'
-import { ctxWith, dataOf } from '../helpers'
+import { createMonitor, createMonitorOutputShape } from '../../src/tools/monitors/create-monitor'
+import { ctxWith, dataOf, structuredOf } from '../helpers'
+
+const outputSchema = z.object(createMonitorOutputShape)
 
 const PROJECT = '00000000-0000-4000-8000-000000000000'
 
@@ -56,6 +59,31 @@ describe('create_monitor — valid combinations', () => {
     expect((calls[0]?.body as { notification_channel_ids: string[] }).notification_channel_ids).toEqual([
       '11111111-1111-4111-8111-111111111111',
     ])
+  })
+
+  it('accepts an explicit null description (matches the API, which allows null on create)', async () => {
+    const calls: ApiRequest[] = []
+    const result = await createMonitor(ctxOk(calls), {
+      project_id: PROJECT,
+      type: 'JOB_CRON',
+      name: 'Backup',
+      schedule: '0 3 * * *',
+      description: null,
+    })
+    expect(result.isError).toBeFalsy()
+    expect((calls[0]?.body as { description: unknown }).description).toBeNull()
+  })
+
+  it('accepts grace_period_seconds at the API floor of 15', async () => {
+    const calls: ApiRequest[] = []
+    const result = await createMonitor(ctxOk(calls), {
+      project_id: PROJECT,
+      type: 'JOB_CRON',
+      name: 'Backup',
+      schedule: '0 3 * * *',
+      grace_period_seconds: 15,
+    })
+    expect(result.isError).toBeFalsy()
   })
 })
 
@@ -122,6 +150,19 @@ describe('create_monitor — invalid combinations are rejected before the API', 
     })
     expect(result.isError).toBe(true)
   })
+
+  it('rejects grace_period_seconds below the API floor of 15 (was min 0, tightened to match core)', async () => {
+    const calls: ApiRequest[] = []
+    const result = await createMonitor(ctxOk(calls), {
+      project_id: PROJECT,
+      type: 'JOB_CRON',
+      name: 'N',
+      schedule: '0 3 * * *',
+      grace_period_seconds: 5,
+    })
+    expect(result.isError).toBe(true)
+    expect(calls).toHaveLength(0)
+  })
 })
 
 describe('create_monitor — success mapping', () => {
@@ -130,5 +171,15 @@ describe('create_monitor — success mapping', () => {
       await createMonitor(ctxOk([]), { project_id: PROJECT, type: 'JOB_CRON', name: 'Backup', schedule: '0 3 * * *' })
     )
     expect(data.monitor).toMatchObject({ id: 'm1', name: 'Backup' })
+  })
+
+  it('structuredContent validates against the declared outputSchema', async () => {
+    const result = await createMonitor(ctxOk([]), {
+      project_id: PROJECT,
+      type: 'JOB_CRON',
+      name: 'Backup',
+      schedule: '0 3 * * *',
+    })
+    expect(outputSchema.safeParse(structuredOf(result)).success).toBe(true)
   })
 })

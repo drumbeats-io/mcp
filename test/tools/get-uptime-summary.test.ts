@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest'
+import { z } from 'zod'
 import type { ApiRequest } from '../../src/api/client'
 import { DrumbeatsApiError } from '../../src/api/errors'
-import { getUptimeSummary } from '../../src/tools/uptime/get-uptime-summary'
-import { ctxWith, textOf } from '../helpers'
+import { getUptimeSummary, getUptimeSummaryOutputShape } from '../../src/tools/uptime/get-uptime-summary'
+import { ctxWith, structuredOf, textOf } from '../helpers'
+
+const outputSchema = z.object(getUptimeSummaryOutputShape)
 
 describe('get_uptime_summary', () => {
   it('renders a readable rollup and passes period_hours', async () => {
@@ -27,13 +30,18 @@ describe('get_uptime_summary', () => {
       calls
     )
 
-    const text = textOf(await getUptimeSummary(ctx, { project_id: 'p1', period_hours: 720 }))
+    const result = await getUptimeSummary(ctx, { project_id: 'p1', period_hours: 720 })
+    const text = textOf(result)
     expect(calls[0]?.path).toBe('/v1/projects/p1/uptime-summary')
     expect(calls[0]?.query?.period_hours).toBe(720)
     expect(text).toContain('720h')
     expect(text).toContain('99.9%')
     expect(text).toContain('Marketing site')
     expect(text).toContain('p95 450ms')
+
+    // Prose is the primary content, but structuredContent must also be present
+    // and valid — this tool declares an outputSchema despite rendering text.
+    expect(outputSchema.safeParse(structuredOf(result)).success).toBe(true)
   })
 
   it('handles a project with no uptime monitors', async () => {
