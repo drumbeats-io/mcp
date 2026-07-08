@@ -4,6 +4,7 @@
 [![npm](https://img.shields.io/npm/v/@drumbeats/mcp.svg)](https://www.npmjs.com/package/@drumbeats/mcp)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 [![drumbeats-io/mcp MCP server](https://glama.ai/mcp/servers/drumbeats-io/mcp/badges/score.svg)](https://glama.ai/mcp/servers/drumbeats-io/mcp)
+[![smithery badge](https://smithery.ai/badge/drumbeats/drumbeats-mcp)](https://smithery.ai/servers/drumbeats/drumbeats-mcp)
 
 The official [Model Context Protocol](https://modelcontextprotocol.io) server for
 **[Drumbeats](https://drumbeats.io)** — run your monitoring from any AI client.

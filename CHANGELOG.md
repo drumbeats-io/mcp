@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Two project write tools, bringing the tool count to sixteen. `create_project` (name + optional description) creates a project and returns its id for use with `create_monitor`; `update_project` applies a partial patch to a project's name and/or description. Both are additive, non-destructive writes (`readOnlyHint: false`, `destructiveHint: false`; `update_project` is also idempotent) that route to the id service (`POST` / `PATCH /v1/projects`). A new `manage_projects` scope gates them: the hosted transport exposes them only to tokens carrying that scope, while stdio registers them as usual. Hitting a plan's project limit returns an upgrade prompt rather than a hard error.
+- `outputSchema` on all sixteen tools, so MCP clients get a validated `structuredContent` payload alongside the existing text block (the shared `jsonResult`/`textResult` helpers now populate `structuredContent`; a new `structuredTextResult` helper covers `get_uptime_summary`, which renders prose as its primary content but still declares a schema). `get_monitor_history`'s output varies by its `kind` argument (pings/warnings/checks/response_times); its schema models that as a `data` union rather than a discriminated union, since the installed SDK's output-schema normalization only recognizes plain object schemas at the outputSchema root and does not accept a discriminated union there.
+- Smithery badge in the README, alongside the existing CI/npm/License/Glama badges — the server is now listed on Smithery.
+- Full `.describe()` coverage on every `create_monitor` / `update_monitor` parameter (previously undescribed): the tolerance/grace-period fields, duration assertions, alert surge protection, retention, notification wiring, timezone, tags, and all ten `uptime_*` fields, cross-checked against `core`'s validation (`packages/beats/src/utils/validation.ts`) and service layer (`packages/beats/src/services/monitor.ts`) rather than guessed.
+
+### Fixed
+
+- `create_monitor`'s tool description mischaracterized `JOB_BASIC` as "a job expected on a fixed interval" — that's `JOB_HEARTBEAT`. `JOB_BASIC` is actually event-driven with no schedule expectation (confirmed against core's monitor service and routes); the description now says so and notes that `grace_period_seconds`/`schedule_tolerance` don't apply to it.
+
+### Changed
+
+- `grace_period_seconds` now rejects values under 15 in both `create_monitor` and `update_monitor` (was `min(0)`), matching a floor the API has always enforced (`grace_period_seconds must be at least 15`) — a lower value can permanently trap a monitor in DOWN. `description` (create) and `slug` (update) now accept an explicit `null`, matching what the API already allows.
 
 ## [0.2.1] - 2026-07-02
 
