@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 // Raw incident wire shape (snake_case); only the fields we surface are modelled.
 export interface RawIncident {
   id: string
@@ -37,3 +39,18 @@ export function toIncidentSummary(incident: RawIncident): IncidentSummary {
     reopened_at: incident.reopened_at ?? null,
   }
 }
+
+/** Output shape mirroring IncidentSummary above, for every incident-returning tool. */
+export const incidentSummaryOutputShape = {
+  id: z.string(),
+  monitor_id: z.string().nullable(),
+  project_id: z.string().nullable(),
+  event: z.string().nullable(),
+  status: z.string().nullable(),
+  started_at: z.string().nullable(),
+  acknowledged_at: z.string().nullable(),
+  resolved_at: z.string().nullable(),
+  reopened_at: z.string().nullable(),
+}
+
+export const incidentSummarySchema = z.object(incidentSummaryOutputShape)

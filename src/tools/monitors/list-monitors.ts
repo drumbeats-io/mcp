@@ -4,7 +4,11 @@ import { z } from 'zod'
 import { toToolErrorResult } from '../../api/errors.js'
 import { jsonResult } from '../result.js'
 import type { ToolContext } from '../types.js'
-import { type RawMonitor, toMonitorSummary } from './shared.js'
+import { monitorSummaryOutputShape, type RawMonitor, toMonitorSummary } from './shared.js'
+
+export const listMonitorsOutputShape = {
+  monitors: z.array(z.object(monitorSummaryOutputShape)),
+}
 
 export const listMonitorsInputShape = {
   project_id: z
@@ -41,6 +45,7 @@ export function registerListMonitors(server: McpServer, ctx: ToolContext): void 
       title: 'List monitors',
       description: DESCRIPTION,
       inputSchema: listMonitorsInputShape,
+      outputSchema: listMonitorsOutputShape,
       annotations: { readOnlyHint: true },
     },
     (args) => listMonitors(ctx, args)

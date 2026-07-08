@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 // Raw monitor wire shape (snake_case); only the fields we surface are modelled.
 export interface RawMonitor {
   id: string
@@ -59,3 +61,25 @@ export function toMonitorSummary(monitor: RawMonitor): MonitorSummary {
     created_at: monitor.created_at ?? null,
   }
 }
+
+/** Output shape mirroring MonitorSummary above, for every monitor-returning tool. */
+export const monitorSummaryOutputShape = {
+  id: z.string(),
+  name: z.string(),
+  type: z.string().nullable(),
+  status: z.string().nullable(),
+  slug: z.string().nullable(),
+  project_id: z.string().nullable(),
+  description: z.string().nullable(),
+  tags: z.array(z.string()),
+  timezone: z.string().nullable(),
+  grace_period_seconds: z.number().int().nullable(),
+  alert_enabled: z.boolean().nullable(),
+  total_pings_received: z.number().int().nullable(),
+  consecutive_failures: z.number().int().nullable(),
+  last_success_at: z.string().nullable(),
+  next_expected_at: z.string().nullable(),
+  created_at: z.string().nullable(),
+}
+
+export const monitorSummarySchema = z.object(monitorSummaryOutputShape)

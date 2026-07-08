@@ -58,6 +58,36 @@ interface ProjectSummary {
   notification_groups?: GroupSummary[]
 }
 
+const channelSummaryOutputShape = {
+  id: z.string(),
+  name: z.string().nullable(),
+  type: z.string().nullable(),
+  enabled: z.boolean().nullable(),
+  is_default: z.boolean().nullable(),
+}
+
+const groupSummaryOutputShape = {
+  id: z.string(),
+  name: z.string(),
+  description: z.string().nullable(),
+}
+
+const projectSummaryWithExtrasOutputShape = {
+  id: z.string(),
+  name: z.string(),
+  description: z.string().nullable(),
+  plan: z.string().nullable(),
+  created_at: z.string().nullable(),
+  member_count: z.number().int().nullable(),
+  owner_email: z.string().nullable(),
+  notification_channels: z.array(z.object(channelSummaryOutputShape)).optional(),
+  notification_groups: z.array(z.object(groupSummaryOutputShape)).optional(),
+}
+
+export const listProjectsOutputShape = {
+  projects: z.array(z.object(projectSummaryWithExtrasOutputShape)),
+}
+
 export const listProjectsInputShape = {
   include: z
     .array(z.enum(['channels', 'groups']))
@@ -145,6 +175,7 @@ export function registerListProjects(server: McpServer, ctx: ToolContext): void 
       title: 'List projects',
       description: DESCRIPTION,
       inputSchema: listProjectsInputShape,
+      outputSchema: listProjectsOutputShape,
       annotations: { readOnlyHint: true },
     },
     (args) => listProjects(ctx, args)

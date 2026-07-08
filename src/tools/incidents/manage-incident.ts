@@ -4,7 +4,12 @@ import { z } from 'zod'
 import { toToolErrorResult } from '../../api/errors.js'
 import { jsonResult } from '../result.js'
 import type { ToolContext } from '../types.js'
-import { type RawIncident, toIncidentSummary } from './shared.js'
+import { incidentSummaryOutputShape, type RawIncident, toIncidentSummary } from './shared.js'
+
+export const manageIncidentOutputShape = {
+  action: z.enum(['get', 'acknowledge', 'resolve']),
+  incident: z.object(incidentSummaryOutputShape),
+}
 
 export const manageIncidentInputShape = {
   incident_id: z.string().min(1).describe('The incident id (from list_incidents).'),
@@ -41,6 +46,7 @@ export function registerManageIncident(server: McpServer, ctx: ToolContext): voi
       title: 'Manage incident',
       description: DESCRIPTION,
       inputSchema: manageIncidentInputShape,
+      outputSchema: manageIncidentOutputShape,
       annotations: { readOnlyHint: false, idempotentHint: true },
     },
     (args) => manageIncident(ctx, args)

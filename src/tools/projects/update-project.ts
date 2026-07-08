@@ -4,7 +4,11 @@ import { z } from 'zod'
 import { toToolErrorResult } from '../../api/errors.js'
 import { errorResult, jsonResult } from '../result.js'
 import type { ToolContext } from '../types.js'
-import { type RawProject, toProjectSummary } from './shared.js'
+import { projectSummaryOutputShape, type RawProject, toProjectSummary } from './shared.js'
+
+export const updateProjectOutputShape = {
+  project: z.object(projectSummaryOutputShape),
+}
 
 export const updateProjectInputShape = {
   project_id: z.string().min(1).describe('The project id to update (from list_projects).'),
@@ -53,6 +57,7 @@ export function registerUpdateProject(server: McpServer, ctx: ToolContext): void
       title: 'Update project',
       description: DESCRIPTION,
       inputSchema: updateProjectInputShape,
+      outputSchema: updateProjectOutputShape,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
     },
     (args) => updateProject(ctx, args)

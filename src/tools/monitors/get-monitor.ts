@@ -4,7 +4,11 @@ import { z } from 'zod'
 import { toToolErrorResult } from '../../api/errors.js'
 import { jsonResult } from '../result.js'
 import type { ToolContext } from '../types.js'
-import { type RawMonitor, toMonitorSummary } from './shared.js'
+import { monitorSummaryOutputShape, type RawMonitor, toMonitorSummary } from './shared.js'
+
+export const getMonitorOutputShape = {
+  monitor: z.object(monitorSummaryOutputShape),
+}
 
 export const getMonitorInputShape = {
   monitor_id: z.string().min(1).describe('The monitor id (from list_monitors).'),
@@ -32,6 +36,7 @@ export function registerGetMonitor(server: McpServer, ctx: ToolContext): void {
       title: 'Get monitor',
       description: DESCRIPTION,
       inputSchema: getMonitorInputShape,
+      outputSchema: getMonitorOutputShape,
       annotations: { readOnlyHint: true },
     },
     (args) => getMonitor(ctx, args)
