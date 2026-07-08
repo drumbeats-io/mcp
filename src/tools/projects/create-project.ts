@@ -5,7 +5,11 @@ import { toToolErrorResult } from '../../api/errors.js'
 import { jsonResult } from '../result.js'
 import type { ToolContext } from '../types.js'
 import { zodErrorResult } from '../validation.js'
-import { type RawProject, toProjectSummary } from './shared.js'
+import { projectSummaryOutputShape, type RawProject, toProjectSummary } from './shared.js'
+
+export const createProjectOutputShape = {
+  project: z.object(projectSummaryOutputShape),
+}
 
 export const createProjectInputShape = {
   name: z.string().min(1).max(100).describe('The project name.'),
@@ -46,6 +50,7 @@ export function registerCreateProject(server: McpServer, ctx: ToolContext): void
       title: 'Create project',
       description: DESCRIPTION,
       inputSchema: createProjectInputShape,
+      outputSchema: createProjectOutputShape,
       annotations: { readOnlyHint: false, destructiveHint: false },
     },
     (args) => createProject(ctx, args)

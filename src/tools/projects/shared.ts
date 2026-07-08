@@ -3,6 +3,19 @@ import { z } from 'zod'
 const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
 export const uuid = () => z.string().regex(UUID_RE, 'must be a UUID')
 
+/** Output shape mirroring ProjectSummary below, for create_project / update_project. */
+export const projectSummaryOutputShape = {
+  id: z.string(),
+  name: z.string(),
+  description: z.string().nullable(),
+  plan: z.string().nullable(),
+  created_at: z.string().nullable(),
+  member_count: z.number().int().nullable(),
+  owner_email: z.string().nullable(),
+}
+
+export const projectSummarySchema = z.object(projectSummaryOutputShape)
+
 /** Raw project shape returned by the id service; only the fields we surface are modelled. */
 export interface RawProject {
   id: string

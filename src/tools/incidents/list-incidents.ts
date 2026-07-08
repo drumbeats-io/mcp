@@ -2,9 +2,10 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { z } from 'zod'
 import { toToolErrorResult } from '../../api/errors.js'
+import { paginationOutputShape } from '../pagination.js'
 import { jsonResult } from '../result.js'
 import type { ToolContext } from '../types.js'
-import { type RawIncident, toIncidentSummary } from './shared.js'
+import { incidentSummaryOutputShape, type RawIncident, toIncidentSummary } from './shared.js'
 
 const MAX_LIMIT = 200
 
@@ -14,6 +15,11 @@ export const listIncidentsInputShape = {
   monitor_id: z.string().optional().describe('Filter to a single monitor.'),
   page: z.number().int().positive().optional().describe('Page number (default 1).'),
   limit: z.number().int().positive().max(MAX_LIMIT).optional().describe('Page size (max 200, default 20).'),
+}
+
+export const listIncidentsOutputShape = {
+  incidents: z.array(z.object(incidentSummaryOutputShape)),
+  pagination: z.object(paginationOutputShape).nullable(),
 }
 
 export type ListIncidentsArgs = {
@@ -56,6 +62,7 @@ export function registerListIncidents(server: McpServer, ctx: ToolContext): void
       title: 'List incidents',
       description: DESCRIPTION,
       inputSchema: listIncidentsInputShape,
+      outputSchema: listIncidentsOutputShape,
       annotations: { readOnlyHint: true },
     },
     (args) => listIncidents(ctx, args)

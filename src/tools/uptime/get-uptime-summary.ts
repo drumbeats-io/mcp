@@ -2,7 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { z } from 'zod'
 import { toToolErrorResult } from '../../api/errors.js'
-import { textResult } from '../result.js'
+import { structuredTextResult } from '../result.js'
 import type { ToolContext } from '../types.js'
 
 const MAX_PERIOD_HOURS = 2160 // 90 days
@@ -40,6 +40,30 @@ interface UptimeSummary {
     up_count?: number
     down_count?: number
   }
+}
+
+const uptimeMonitorRowOutputShape = {
+  monitor_id: z.string().optional(),
+  name: z.string().optional(),
+  uptime_percentage: z.number().optional(),
+  total_checks: z.number().int().optional(),
+  up_count: z.number().int().optional(),
+  down_count: z.number().int().optional(),
+  avg_ms: z.number().nullable().optional(),
+  p95_ms: z.number().nullable().optional(),
+}
+
+export const getUptimeSummaryOutputShape = {
+  period_hours: z.number().optional(),
+  monitors: z.array(z.object(uptimeMonitorRowOutputShape)).optional(),
+  overall: z
+    .object({
+      uptime_percentage: z.number().optional(),
+      total_checks: z.number().int().optional(),
+      up_count: z.number().int().optional(),
+      down_count: z.number().int().optional(),
+    })
+    .optional(),
 }
 
 const DESCRIPTION =
@@ -97,7 +121,7 @@ export async function getUptimeSummary(ctx: ToolContext, args: GetUptimeSummaryA
       path: `/v1/projects/${encodeURIComponent(args.project_id)}/uptime-summary`,
       query: { period_hours: args.period_hours },
     })
-    return textResult(formatUptimeSummary(summary))
+    return structuredTextResult(formatUptimeSummary(summary), summary)
   } catch (error) {
     return toToolErrorResult(error)
   }
@@ -110,6 +134,7 @@ export function registerGetUptimeSummary(server: McpServer, ctx: ToolContext): v
       title: 'Get uptime summary',
       description: DESCRIPTION,
       inputSchema: getUptimeSummaryInputShape,
+      outputSchema: getUptimeSummaryOutputShape,
       annotations: { readOnlyHint: true },
     },
     (args) => getUptimeSummary(ctx, args)

@@ -4,7 +4,11 @@ import { z } from 'zod'
 import { toToolErrorResult } from '../../api/errors.js'
 import { jsonResult } from '../result.js'
 import type { ToolContext } from '../types.js'
-import { type RawMonitor, toMonitorSummary } from './shared.js'
+import { monitorSummaryOutputShape, type RawMonitor, toMonitorSummary } from './shared.js'
+
+export const pauseResumeOutputShape = {
+  monitor: z.object(monitorSummaryOutputShape),
+}
 
 export const pauseResumeInputShape = {
   monitor_id: z.string().min(1).describe('The monitor id (from list_monitors).'),
@@ -40,6 +44,7 @@ export function registerPauseMonitor(server: McpServer, ctx: ToolContext): void 
       title: 'Pause monitor',
       description: 'Pause a monitor by id. It stops running checks and sending alerts until resumed.',
       inputSchema: pauseResumeInputShape,
+      outputSchema: pauseResumeOutputShape,
       annotations: { readOnlyHint: false, idempotentHint: true },
     },
     (args) => pauseMonitor(ctx, args)
@@ -53,6 +58,7 @@ export function registerResumeMonitor(server: McpServer, ctx: ToolContext): void
       title: 'Resume monitor',
       description: 'Resume a paused monitor by id.',
       inputSchema: pauseResumeInputShape,
+      outputSchema: pauseResumeOutputShape,
       annotations: { readOnlyHint: false, idempotentHint: true },
     },
     (args) => resumeMonitor(ctx, args)
