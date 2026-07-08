@@ -21,3 +21,8 @@ export function textOf(result: CallToolResult): string {
 export function dataOf<T = unknown>(result: CallToolResult): T {
   return JSON.parse(textOf(result)) as T
 }
+
+/** The `structuredContent` a tool returned, for outputSchema-shaped assertions. */
+export function structuredOf<T = Record<string, unknown>>(result: CallToolResult): T {
+  return result.structuredContent as T
+}
