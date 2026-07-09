@@ -1,6 +1,6 @@
 {
 	"name": "@drumbeats/mcp",
-	"version": "0.2.1",
+	"version": "0.3.0",
 	"mcpName": "io.github.drumbeats-io/mcp",
 	"description": "Official Model Context Protocol (MCP) server for Drumbeats — operate your monitoring from any AI client: create monitors, triage incidents, and run HTTP/SSL/DNS checks in natural language.",
 	"license": "Apache-2.0",

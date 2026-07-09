@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-09
+
 ### Added
 
 - Two project write tools, bringing the tool count to sixteen. `create_project` (name + optional description) creates a project and returns its id for use with `create_monitor`; `update_project` applies a partial patch to a project's name and/or description. Both are additive, non-destructive writes (`readOnlyHint: false`, `destructiveHint: false`; `update_project` is also idempotent) that route to the id service (`POST` / `PATCH /v1/projects`). A new `manage_projects` scope gates them: the hosted transport exposes them only to tokens carrying that scope, while stdio registers them as usual. Hitting a plan's project limit returns an upgrade prompt rather than a hard error.
@@ -73,6 +75,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   typecheck, test, build, and an AI-authorship guard), CodeQL, and Dependabot.
 - Container build (multi-stage `Dockerfile`) and `.mcpb` bundle manifest stub.
 
-[Unreleased]: https://github.com/drumbeats-io/mcp/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/drumbeats-io/mcp/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/drumbeats-io/mcp/compare/v0.2.1...v0.3.0
+[0.2.1]: https://github.com/drumbeats-io/mcp/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/drumbeats-io/mcp/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/drumbeats-io/mcp/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/drumbeats-io/mcp/releases/tag/v0.1.0
