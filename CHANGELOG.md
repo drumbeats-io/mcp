@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-15
+
+### Added
+
+- `uptime_locations` parameter on `create_monitor` and `update_monitor` (UPTIME_HTTP only, beta): an array of `"eu-central" | "us-east"`, 1-2 entries, matching the API's registry-slug validation. The API is the authority on the "must include eu-central" rule and on rejecting `us-east` where multi-location checking isn't enabled for a project (403) — this tool only narrows the accepted shape, it doesn't re-derive that business rule client-side. Each additional location consumes 1 extra beat per check cycle.
+- `check_status` (`"ok" | "probe_error"`) on `get_monitor_history`'s `checks` result, alongside the existing `check_region`, to distinguish a real target-down failure from a probe-unreachable/connectivity gap that carries no verdict. `cycle_id` (nullable) is also now exposed, identifying the check cycle a region's row belongs to.
+
 ## [0.3.0] - 2026-07-09
 
 ### Added
@@ -75,7 +82,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   typecheck, test, build, and an AI-authorship guard), CodeQL, and Dependabot.
 - Container build (multi-stage `Dockerfile`) and `.mcpb` bundle manifest stub.
 
-[Unreleased]: https://github.com/drumbeats-io/mcp/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/drumbeats-io/mcp/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/drumbeats-io/mcp/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/drumbeats-io/mcp/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/drumbeats-io/mcp/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/drumbeats-io/mcp/compare/v0.1.1...v0.2.0

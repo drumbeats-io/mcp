@@ -106,6 +106,8 @@ const checksDataSchema = z.object({
   ssl_expires_at: z.string().nullable(),
   ssl_issuer: z.string().nullable(),
   check_region: z.string(),
+  check_status: z.enum(['ok', 'probe_error']),
+  cycle_id: z.string().nullable().optional(),
   created_at: z.string(),
 })
 

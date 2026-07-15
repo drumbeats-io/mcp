@@ -62,5 +62,23 @@ describe('update_monitor', () => {
       const parsed = inputSchema.safeParse({ monitor_id: 'm1', grace_period_seconds: 5 })
       expect(parsed.success).toBe(false)
     })
+
+    it('accepts a valid uptime_locations array', () => {
+      const parsed = inputSchema.safeParse({ monitor_id: 'm1', uptime_locations: ['eu-central', 'us-east'] })
+      expect(parsed.success).toBe(true)
+    })
+
+    it('rejects an uptime_locations entry outside the region registry', () => {
+      const parsed = inputSchema.safeParse({ monitor_id: 'm1', uptime_locations: ['ap-south'] })
+      expect(parsed.success).toBe(false)
+    })
+
+    it('rejects uptime_locations with more than 2 entries', () => {
+      const parsed = inputSchema.safeParse({
+        monitor_id: 'm1',
+        uptime_locations: ['eu-central', 'us-east', 'eu-central'],
+      })
+      expect(parsed.success).toBe(false)
+    })
   })
 })

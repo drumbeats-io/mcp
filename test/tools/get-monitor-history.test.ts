@@ -108,10 +108,52 @@ describe('get_monitor_history', () => {
         ssl_expires_at: null,
         ssl_issuer: null,
         check_region: 'us-east',
+        check_status: 'ok',
+        cycle_id: 'cyc-1',
         created_at: '2026-01-26T02:00:00.000Z',
       }))
       const result = await getMonitorHistory(ctx, { monitor_id: 'm1', kind: 'checks' })
       expect(outputSchema.safeParse(structuredOf(result)).success).toBe(true)
+    })
+
+    it('checks with a probe_error result and a null cycle_id (legacy row)', async () => {
+      const ctx = ctxWith(() => ({
+        id: 'c2',
+        monitor_id: 'm1',
+        status_code: null,
+        response_time_ms: 0,
+        is_up: false,
+        error: 'Probe unreachable: connect ETIMEDOUT',
+        ssl_expires_at: null,
+        ssl_issuer: null,
+        check_region: 'us-east',
+        check_status: 'probe_error',
+        cycle_id: null,
+        created_at: '2026-01-26T02:00:00.000Z',
+      }))
+      const result = await getMonitorHistory(ctx, { monitor_id: 'm1', kind: 'checks' })
+      expect(outputSchema.safeParse(structuredOf(result)).success).toBe(true)
+    })
+
+    it('rejects a checks result with an unknown check_status value', () => {
+      const parsed = outputSchema.safeParse({
+        monitor_id: 'm1',
+        kind: 'checks',
+        data: {
+          id: 'c1',
+          monitor_id: 'm1',
+          status_code: 200,
+          response_time_ms: 123,
+          is_up: true,
+          error: null,
+          ssl_expires_at: null,
+          ssl_issuer: null,
+          check_region: 'us-east',
+          check_status: 'weird_value',
+          created_at: '2026-01-26T02:00:00.000Z',
+        },
+      })
+      expect(parsed.success).toBe(false)
     })
 
     it('response_times', async () => {

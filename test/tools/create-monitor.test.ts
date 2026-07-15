@@ -85,6 +85,34 @@ describe('create_monitor — valid combinations', () => {
     })
     expect(result.isError).toBeFalsy()
   })
+
+  it('accepts uptime_locations with eu-central only', async () => {
+    const calls: ApiRequest[] = []
+    const result = await createMonitor(ctxOk(calls), {
+      project_id: PROJECT,
+      type: 'UPTIME_HTTP',
+      name: 'Site',
+      schedule: '60s',
+      uptime_url: 'https://example.com',
+      uptime_locations: ['eu-central'],
+    })
+    expect(result.isError).toBeFalsy()
+    expect((calls[0]?.body as { uptime_locations: string[] }).uptime_locations).toEqual(['eu-central'])
+  })
+
+  it('accepts uptime_locations with both eu-central and us-east', async () => {
+    const calls: ApiRequest[] = []
+    const result = await createMonitor(ctxOk(calls), {
+      project_id: PROJECT,
+      type: 'UPTIME_HTTP',
+      name: 'Site',
+      schedule: '60s',
+      uptime_url: 'https://example.com',
+      uptime_locations: ['eu-central', 'us-east'],
+    })
+    expect(result.isError).toBeFalsy()
+    expect((calls[0]?.body as { uptime_locations: string[] }).uptime_locations).toEqual(['eu-central', 'us-east'])
+  })
 })
 
 describe('create_monitor — invalid combinations are rejected before the API', () => {
@@ -159,6 +187,47 @@ describe('create_monitor — invalid combinations are rejected before the API', 
       name: 'N',
       schedule: '0 3 * * *',
       grace_period_seconds: 5,
+    })
+    expect(result.isError).toBe(true)
+    expect(calls).toHaveLength(0)
+  })
+
+  it('rejects an uptime_locations entry outside the region registry', async () => {
+    const calls: ApiRequest[] = []
+    const result = await createMonitor(ctxOk(calls), {
+      project_id: PROJECT,
+      type: 'UPTIME_HTTP',
+      name: 'Site',
+      schedule: '60s',
+      uptime_url: 'https://example.com',
+      uptime_locations: ['ap-south'],
+    })
+    expect(result.isError).toBe(true)
+    expect(calls).toHaveLength(0)
+  })
+
+  it('rejects uptime_locations with more than 2 entries', async () => {
+    const calls: ApiRequest[] = []
+    const result = await createMonitor(ctxOk(calls), {
+      project_id: PROJECT,
+      type: 'UPTIME_HTTP',
+      name: 'Site',
+      schedule: '60s',
+      uptime_url: 'https://example.com',
+      uptime_locations: ['eu-central', 'us-east', 'eu-central'],
+    })
+    expect(result.isError).toBe(true)
+    expect(calls).toHaveLength(0)
+  })
+
+  it('rejects uptime_locations on a job type (uptime_* fields forbidden unless UPTIME_HTTP)', async () => {
+    const calls: ApiRequest[] = []
+    const result = await createMonitor(ctxOk(calls), {
+      project_id: PROJECT,
+      type: 'JOB_CRON',
+      name: 'Nightly',
+      schedule: '0 3 * * *',
+      uptime_locations: ['eu-central'],
     })
     expect(result.isError).toBe(true)
     expect(calls).toHaveLength(0)
