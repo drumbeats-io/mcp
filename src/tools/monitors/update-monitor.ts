@@ -198,6 +198,16 @@ export const updateMonitorInputShape = {
     .boolean()
     .optional()
     .describe('Whether to reject invalid/self-signed TLS certificates during the check (UPTIME_HTTP only).'),
+  uptime_locations: z
+    .array(z.enum(['eu-central', 'us-east']))
+    .min(1)
+    .max(2)
+    .optional()
+    .describe(
+      'New check locations (UPTIME_HTTP only, beta). Fully replaces the existing list. Must include ' +
+        '"eu-central"; each location consumes 1 beat per check cycle. The API rejects "us-east" if ' +
+        'multi-location checking is not enabled for this project.'
+    ),
 }
 
 export const updateMonitorOutputShape = {

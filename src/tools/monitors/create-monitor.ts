@@ -224,6 +224,17 @@ const uptimeOptionalFields = {
       'Whether to reject invalid or self-signed TLS certificates during the check. Set false to allow checking ' +
         'a host with a known-bad cert. Defaults to true.'
     ),
+  uptime_locations: z
+    .array(z.enum(['eu-central', 'us-east']))
+    .min(1)
+    .max(2)
+    .optional()
+    .describe(
+      'Check locations for this monitor (beta, all plans — each location consumes 1 beat per check cycle, so a ' +
+        '2-location monitor costs double the beats of a 1-location one). Must include "eu-central"; the API ' +
+        'rejects an array missing it, and rejects "us-east" outright if multi-location checking is not enabled ' +
+        'for this project. Defaults to ["eu-central"] (today\'s single-vantage behavior).'
+    ),
 }
 
 // Flat shape advertised to clients. The cross-field rules (uptime_* only for
