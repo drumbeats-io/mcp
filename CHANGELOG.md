@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `list_projects` with `include=["channels"]` reported `type: null` for every notification channel against the 2026-07 Drumbeats API, which renamed the channel-type key from `channel` to `type`. The tool now reads `type` first and falls back to `channel`, so one build works with both the current API and older servers — nothing in the tool's own output shape changed.
 
-
+## [0.4.0] - 2026-07-15
 
 ### Added
 
