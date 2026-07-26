@@ -19,7 +19,10 @@ interface RawProject {
 interface RawChannel {
   id: string
   name?: string | null
-  // The notification channel type lives in the `channel` field (not `type`).
+  // The channel type is `type` on the current API. Older servers spelled it
+  // `channel` (the DB column name); both are read so one client build works
+  // against either.
+  type?: string | null
   channel?: string | null
   enabled?: boolean | null
   is_default?: boolean | null
@@ -140,7 +143,7 @@ export async function listProjects(ctx: ToolContext, args: ListProjectsArgs): Pr
           summary.notification_channels = (channels ?? []).map((channel) => ({
             id: channel.id,
             name: channel.name ?? null,
-            type: channel.channel ?? null,
+            type: channel.type ?? channel.channel ?? null,
             enabled: channel.enabled ?? null,
             is_default: channel.is_default ?? null,
           }))

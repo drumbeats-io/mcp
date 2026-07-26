@@ -78,7 +78,7 @@ describe('list_projects handler', () => {
     const ctx = ctxWith((req) => {
       if (req.path === '/v1/projects') return { projects: [{ id: 'p1', name: 'Prod' }] }
       if (req.path === '/v1/notification-channels') {
-        return [{ id: 'c1', name: 'Email', channel: 'EMAIL', enabled: true, is_default: true }]
+        return [{ id: 'c1', name: 'Email', type: 'EMAIL', enabled: true, is_default: true }]
       }
       if (req.path === '/v1/notification-groups') {
         return [{ id: 'g1', name: 'On-Call', description: null }]
@@ -101,6 +101,54 @@ describe('list_projects handler', () => {
       { id: 'c1', name: 'Email', type: 'EMAIL', enabled: true, is_default: true },
     ])
     expect(data.projects[0]?.notification_groups).toEqual([{ id: 'g1', name: 'On-Call', description: null }])
+  })
+
+  // The channel type key moved from `channel` to `type` in the 2026-07 API. One
+  // client build has to read both: users upgrade the MCP server and the
+  // Drumbeats deployment they point it at independently.
+  it.each([
+    ['current API (type)', { id: 'c1', name: 'Slack', type: 'SLACK', enabled: true, is_default: false }],
+    ['older API (channel)', { id: 'c1', name: 'Slack', channel: 'SLACK', enabled: true, is_default: false }],
+  ])('reads the channel type from the %s shape', async (_label, rawChannel) => {
+    const ctx = ctxWith((req) => {
+      if (req.path === '/v1/projects') return { projects: [{ id: 'p1', name: 'Prod' }] }
+      if (req.path === '/v1/notification-channels') return [rawChannel]
+      throw new Error(`unexpected path ${req.path}`)
+    })
+
+    const result = await listProjects(ctx, { include: ['channels'] })
+    const data = JSON.parse(textOf(result)) as { projects: Array<{ notification_channels: unknown }> }
+    expect(data.projects[0]?.notification_channels).toEqual([
+      { id: 'c1', name: 'Slack', type: 'SLACK', enabled: true, is_default: false },
+    ])
+  })
+
+  it('prefers the canonical type over a legacy channel key when a server emits both', async () => {
+    const ctx = ctxWith((req) => {
+      if (req.path === '/v1/projects') return { projects: [{ id: 'p1', name: 'Prod' }] }
+      if (req.path === '/v1/notification-channels') {
+        return [{ id: 'c1', name: 'Slack', type: 'SLACK', channel: 'SLACK_LEGACY' }]
+      }
+      throw new Error(`unexpected path ${req.path}`)
+    })
+
+    const result = await listProjects(ctx, { include: ['channels'] })
+    const data = JSON.parse(textOf(result)) as { projects: Array<{ notification_channels: Array<{ type: string }> }> }
+    expect(data.projects[0]?.notification_channels[0]?.type).toBe('SLACK')
+  })
+
+  it('reports a null type when neither key is present', async () => {
+    const ctx = ctxWith((req) => {
+      if (req.path === '/v1/projects') return { projects: [{ id: 'p1', name: 'Prod' }] }
+      if (req.path === '/v1/notification-channels') return [{ id: 'c1', name: 'Mystery' }]
+      throw new Error(`unexpected path ${req.path}`)
+    })
+
+    const result = await listProjects(ctx, { include: ['channels'] })
+    const data = JSON.parse(textOf(result)) as { projects: Array<{ notification_channels: unknown }> }
+    expect(data.projects[0]?.notification_channels).toEqual([
+      { id: 'c1', name: 'Mystery', type: null, enabled: null, is_default: null },
+    ])
   })
 
   it('maps an API error to a clean, scoped tool error', async () => {
