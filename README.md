@@ -74,8 +74,8 @@ account and no API key** — point any client at the server and start checking.
 
 The ping tools replace a `curl` to the monitor's ping URL, which helps where outbound
 HTTP needs an allowlist (for example Claude Code cloud scheduled tasks). Each takes
-`monitor_id` (the monitor UUID) plus optional `run_id`, `message`, and `payload`, and
-needs a key or token with the `manage_monitors` scope.
+`monitor_id` (the monitor UUID) plus optional `run_id`, `message`, and `payload`. On the
+hosted server they need a token with the `manage_monitors` scope.
 
 **Observe & triage**
 | Tool | What it does |
