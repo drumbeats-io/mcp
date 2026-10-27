@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Updated runtime dependencies: `@modelcontextprotocol/sdk` 1.29.0 → 1.32.2, `zod` 4.4.3 → 4.6.7, and `express` 5.2.1 → 5.3.0. No tool, parameter, or output changed.
+
+### Security
+
+- Updated indirect dependencies with published advisories: `body-parser` (denial of service on compressed bodies), `fast-uri` and `ip-address` (URL and address parsing that could bypass host checks), and `hono` / `@hono/node-server`. `npm audit --omit=dev` now reports no known vulnerabilities.
+
 ## [0.5.0] - 2026-10-27
 
 ### Added
