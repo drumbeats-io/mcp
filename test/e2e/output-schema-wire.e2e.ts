@@ -33,11 +33,11 @@ async function connectedClient(ctx: ToolContext): Promise<{ client: Client; clos
 }
 
 describe('output schema wire format (in-memory MCP protocol)', () => {
-  it('tools/list reports an outputSchema for all sixteen tools', async () => {
+  it('tools/list reports an outputSchema for all nineteen tools', async () => {
     const { client, close } = await connectedClient(stubCtx(() => ({})))
     try {
       const { tools } = await client.listTools()
-      expect(tools).toHaveLength(16)
+      expect(tools).toHaveLength(19)
       for (const tool of tools) {
         expect(tool.outputSchema, `${tool.name} is missing outputSchema on the wire`).toBeDefined()
       }
@@ -62,6 +62,23 @@ describe('output schema wire format (in-memory MCP protocol)', () => {
       const result = await client.callTool({ name: 'check_dns', arguments: { hostname: 'example.com' } })
       expect(result.isError ?? false).toBe(false)
       expect(result.structuredContent).toMatchObject({ ok: true, hostname_checked: 'example.com' })
+    } finally {
+      await close()
+    }
+  })
+
+  it('a ping tool (ping_start) round-trips structuredContent and rejects a non-UUID monitor_id', async () => {
+    const monitorId = '3f2b8c1e-9d4a-4b7e-8f6a-1c2d3e4f5a6b'
+    const { client, close } = await connectedClient(
+      stubCtx(() => ({ ok: true, ping_id: 'p1', event: 'start', timestamp: '2026-10-27T02:00:00.000Z' }))
+    )
+    try {
+      const result = await client.callTool({ name: 'ping_start', arguments: { monitor_id: monitorId } })
+      expect(result.isError ?? false).toBe(false)
+      expect(result.structuredContent).toMatchObject({ monitor_id: monitorId, event: 'start', recorded: true })
+
+      const invalid = await client.callTool({ name: 'ping_start', arguments: { monitor_id: 'nope' } })
+      expect(invalid.isError).toBe(true)
     } finally {
       await close()
     }

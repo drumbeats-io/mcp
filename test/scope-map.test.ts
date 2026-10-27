@@ -12,7 +12,16 @@ const READ_TOOLS = [
   'check_ssl',
   'check_dns',
 ]
-const MONITOR_TOOLS = ['create_monitor', 'update_monitor', 'pause_monitor', 'resume_monitor', 'manage_incident']
+const MONITOR_TOOLS = [
+  'create_monitor',
+  'update_monitor',
+  'pause_monitor',
+  'resume_monitor',
+  'manage_incident',
+  'ping_start',
+  'ping_success',
+  'ping_failure',
+]
 const PROJECT_TOOLS = ['create_project', 'update_project']
 
 describe('scope-map', () => {

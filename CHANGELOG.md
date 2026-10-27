@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Three heartbeat ping tools, bringing the tool count to nineteen: `ping_start`, `ping_success`, and `ping_failure`. Each sends `POST /v1/ping/:monitorId/:event` on the beats service, so an agent can report a job run without a `curl` to the ping URL — useful where outbound HTTP needs an allowlist, such as Claude Code cloud scheduled tasks. Inputs: `monitor_id` (UUID), optional `run_id` to pair a start with its finish, optional `message` (short note), and optional `payload` (longer text, first 10 KB stored). `ping_start` generates and returns a `run_id` when none is given. A paused monitor comes back as `recorded: false` instead of an error. The tools sit under the `manage_monitors` scope, like the other monitor write tools.
+
 ## [0.4.1] - 2026-07-26
 
 ### Fixed

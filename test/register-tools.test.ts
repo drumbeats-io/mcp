@@ -30,6 +30,9 @@ const ALL_TOOLS = [
   'update_monitor',
   'pause_monitor',
   'resume_monitor',
+  'ping_start',
+  'ping_success',
+  'ping_failure',
   'get_monitor_history',
   'get_uptime_summary',
   'list_incidents',
@@ -64,6 +67,7 @@ describe('registerTools scope-gating', () => {
     )
     expect(names).not.toContain('create_monitor')
     expect(names).not.toContain('manage_incident')
+    expect(names).not.toContain('ping_start')
   })
 
   it('a manage_monitors token adds the monitor write tools but not the project ones', () => {
@@ -71,6 +75,7 @@ describe('registerTools scope-gating', () => {
     registerTools(server, ctx, toolsForScopes(['read', 'manage_monitors']))
     expect(names).toContain('create_monitor')
     expect(names).toContain('manage_incident')
+    expect(names).toContain('ping_success')
     expect(names).not.toContain('create_project')
     expect(names).not.toContain('update_project')
   })

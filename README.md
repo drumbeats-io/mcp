@@ -49,7 +49,7 @@ Requires Node.js 22 when running via `npx`.
 
 ## Tools
 
-Sixteen tools over one shared layer. The HTTP / SSL / DNS diagnostics work with **no
+Nineteen tools over one shared layer. The HTTP / SSL / DNS diagnostics work with **no
 account and no API key** — point any client at the server and start checking.
 
 **Projects & monitors**
@@ -64,6 +64,18 @@ account and no API key** — point any client at the server and start checking.
 | `update_monitor` | Update an existing monitor (partial patch). |
 | `pause_monitor` | Pause a monitor (stops checks and alerts). |
 | `resume_monitor` | Resume a paused monitor. |
+
+**Heartbeat pings**
+| Tool | What it does |
+| --- | --- |
+| `ping_start` | Report that a job started; returns a `run_id` to pair with its finish. |
+| `ping_success` | Report that a job succeeded (the heartbeat that keeps a monitor up). |
+| `ping_failure` | Report that a job failed (can open an incident and alert). |
+
+The ping tools replace a `curl` to the monitor's ping URL, which helps where outbound
+HTTP needs an allowlist (for example Claude Code cloud scheduled tasks). Each takes
+`monitor_id` (the monitor UUID) plus optional `run_id`, `message`, and `payload`, and
+needs a key or token with the `manage_monitors` scope.
 
 **Observe & triage**
 | Tool | What it does |

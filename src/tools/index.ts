@@ -11,6 +11,7 @@ import { registerGetMonitorHistory } from './monitors/get-monitor-history.js'
 import { registerListMonitors } from './monitors/list-monitors.js'
 import { registerPauseMonitor, registerResumeMonitor } from './monitors/pause-resume.js'
 import { registerUpdateMonitor } from './monitors/update-monitor.js'
+import { registerPingFailure, registerPingStart, registerPingSuccess } from './ping/send-ping.js'
 import { registerCreateProject } from './projects/create-project.js'
 import { registerUpdateProject } from './projects/update-project.js'
 import type { NamedTool, ToolContext } from './types.js'
@@ -35,6 +36,10 @@ const registry: readonly NamedTool[] = [
   { name: 'update_monitor', register: registerUpdateMonitor },
   { name: 'pause_monitor', register: registerPauseMonitor },
   { name: 'resume_monitor', register: registerResumeMonitor },
+  // Heartbeat pings (the curl-free way to report a job run)
+  { name: 'ping_start', register: registerPingStart },
+  { name: 'ping_success', register: registerPingSuccess },
+  { name: 'ping_failure', register: registerPingFailure },
   // Observation & triage
   { name: 'get_monitor_history', register: registerGetMonitorHistory },
   { name: 'get_uptime_summary', register: registerGetUptimeSummary },
