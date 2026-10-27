@@ -1,0 +1,246 @@
+name: Release
+
+# Runs only when a version tag (v1.2.3) is pushed. Merges to main never release.
+# Order: verify -> the hosted server reports the version -> npm -> GitHub release
+# -> MCP Registry. Each step runs only if the one before it passed, so a failure
+# never leaves npm or the registry ahead of what is actually live.
+# The hosted server is deployed by the maintainers once verify has passed; this
+# workflow holds no deploy credentials and only watches the public endpoints.
+# See RELEASING.md.
+on:
+  push:
+    tags: ['v*.*.*']
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  HOSTED_URL: https://api.drumbeats.io/mcp
+
+jobs:
+  verify:
+    name: Verify the tag and run the scenario
+    runs-on: ubuntu-latest
+    environment: release
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      title: ${{ steps.meta.outputs.title }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+
+      - name: Read the version from the tag
+        id: meta
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          git fetch --quiet --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
+          title="$(git tag -l --format='%(contents:subject)' "$GITHUB_REF_NAME")"
+          {
+            echo "version=$version"
+            echo "title=${title:-v$version}"
+          } >> "$GITHUB_OUTPUT"
+          echo "Releasing $version"
+
+      - name: The tagged commit must be on main
+        run: |
+          git fetch --quiet origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || {
+            echo "::error::$GITHUB_REF_NAME points at a commit that is not on main."
+            exit 1
+          }
+
+      - name: Every version field must match the tag
+        run: node scripts/release/check-version.js "${{ steps.meta.outputs.version }}"
+
+      - name: Report the release start to Drumbeats
+        if: vars.RELEASE_MONITOR_ID != ''
+        run: curl -fsS -m 10 "https://api.drumbeats.io/v1/ping/${{ vars.RELEASE_MONITOR_ID }}/start?run_id=${{ github.run_id }}" || true
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install, lint, typecheck, test, build
+        run: |
+          npm ci
+          npm run lint
+          npm run typecheck
+          npm test
+          npm run build
+
+      - name: Pack the exact tarball that npm will get
+        run: npm pack
+
+      - name: Scenario against the packed tarball (production API)
+        env:
+          DRUMBEATS_API_KEY: ${{ secrets.DRUMBEATS_SCENARIO_API_KEY }}
+          SCENARIO_PROJECT_ID: ${{ vars.SCENARIO_PROJECT_ID }}
+          SCENARIO_LABEL: ${{ github.ref_name }}
+        run: |
+          if [ -z "$DRUMBEATS_API_KEY" ] || [ -z "$SCENARIO_PROJECT_ID" ]; then
+            echo "::error::DRUMBEATS_SCENARIO_API_KEY or SCENARIO_PROJECT_ID is missing; refusing to release without the full scenario."
+            exit 1
+          fi
+          node scripts/scenario/run.js --server "npx -y ./drumbeats-mcp-${{ steps.meta.outputs.version }}.tgz"
+
+      - name: Keep the tarball for the npm job
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: npm-tarball
+          path: drumbeats-mcp-${{ steps.meta.outputs.version }}.tgz
+          if-no-files-found: error
+
+  hosted:
+    name: Wait for the hosted server
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    env:
+      VERSION: ${{ needs.verify.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Wait until /healthz reports the version, then check the public surface
+        run: bash scripts/release/verify-hosted.sh "$VERSION"
+
+  npm:
+    name: Publish to npm
+    needs: [verify, hosted]
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write # npm trusted publishing + provenance; no npm token is stored anywhere
+    env:
+      VERSION: ${{ needs.verify.outputs.version }}
+    steps:
+      - name: Get the verified tarball
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: npm-tarball
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 22 # no registry-url: it would set a placeholder token and trusted publishing needs none
+
+      - name: Use an npm that supports trusted publishing
+        run: npm install -g npm@11
+
+      - name: Publish
+        run: npm publish "./drumbeats-mcp-${VERSION}.tgz" --access public --provenance
+
+      - name: Wait until npm serves it
+        run: |
+          for i in $(seq 1 40); do
+            v="$(npm view @drumbeats/mcp version --prefer-online 2>/dev/null || true)"
+            [ "$v" = "$VERSION" ] && { echo "npm latest is $v"; exit 0; }
+            sleep 15
+          done
+          echo "::error::npm still serves ${v:-nothing} after 10 minutes."
+          exit 1
+
+  github-release:
+    name: GitHub release
+    needs: [verify, npm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.verify.outputs.version }}
+      TITLE: ${{ needs.verify.outputs.title }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Create the release from the CHANGELOG
+        run: |
+          node scripts/release/notes.js "$VERSION" > notes.md
+          gh release create "$GITHUB_REF_NAME" --verify-tag --latest --title "$TITLE" --notes-file notes.md
+
+  registry:
+    name: MCP Registry
+    needs: [verify, npm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # GitHub OIDC proves the drumbeats-io namespace; no personal token
+    env:
+      VERSION: ${{ needs.verify.outputs.version }}
+      PUBLISHER_VERSION: v1.8.5
+      LATEST: '[.servers[] | select(._meta."io.modelcontextprotocol.registry/official".isLatest) | .server.version][0] // empty'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Install mcp-publisher
+        run: |
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/download/${PUBLISHER_VERSION}/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+          ./mcp-publisher --version
+
+      - name: Publish server.json
+        run: |
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish
+
+      - name: Check the registry lists it
+        run: |
+          for i in $(seq 1 20); do
+            v="$(curl -fsS 'https://registry.modelcontextprotocol.io/v0/servers?search=io.github.drumbeats-io/mcp' | jq -r "$LATEST")"
+            [ "$v" = "$VERSION" ] && { echo "Registry lists $v as latest"; exit 0; }
+            sleep 15
+          done
+          echo "::error::The registry's latest is ${v:-nothing}, not $VERSION."
+          exit 1
+
+  report:
+    name: Report
+    needs: [verify, hosted, npm, github-release, registry]
+    if: always()
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.verify.outputs.version }}
+      OUTCOME: ${{ contains(needs.*.result, 'failure') && 'fail' || contains(needs.*.result, 'cancelled') && 'fail' || 'success' }}
+    steps:
+      - name: Summary of what is live
+        run: |
+          hosted="$(curl -fsS -m 10 "$HOSTED_URL/healthz" | jq -r .version 2>/dev/null || echo unreachable)"
+          npmv="$(npm view @drumbeats/mcp version 2>/dev/null || echo unknown)"
+          reg="$(curl -fsS -m 10 'https://registry.modelcontextprotocol.io/v0/servers?search=io.github.drumbeats-io/mcp' | jq -r '[.servers[] | select(._meta."io.modelcontextprotocol.registry/official".isLatest) | .server.version][0] // "none"' 2>/dev/null || echo unknown)"
+          mark() { [ "$1" = "$VERSION" ] && echo "✅ $1" || echo "❌ $1"; }
+          {
+            echo "## Release $GITHUB_REF_NAME: $OUTCOME"
+            echo
+            echo "| Where | Version now |"
+            echo "| --- | --- |"
+            echo "| Hosted server ($HOSTED_URL) | $(mark "$hosted") |"
+            echo "| npm @drumbeats/mcp | $(mark "$npmv") |"
+            echo "| MCP Registry | $(mark "$reg") |"
+            echo "| GitHub release | https://github.com/$GITHUB_REPOSITORY/releases/tag/$GITHUB_REF_NAME |"
+            echo
+            echo "| Job | Result |"
+            echo "| --- | --- |"
+            echo "| Verify + scenario | ${{ needs.verify.result }} |"
+            echo "| Hosted server | ${{ needs.hosted.result }} |"
+            echo "| npm | ${{ needs.npm.result }} |"
+            echo "| GitHub release | ${{ needs.github-release.result }} |"
+            echo "| MCP Registry | ${{ needs.registry.result }} |"
+            echo
+            echo "Next: run the hosted user check from RELEASING.md in a Claude session."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report the release result to Drumbeats
+        if: vars.RELEASE_MONITOR_ID != ''
+        run: |
+          event=$([ "$OUTCOME" = success ] && echo success || echo failure)
+          curl -fsS -m 10 "https://api.drumbeats.io/v1/ping/${{ vars.RELEASE_MONITOR_ID }}/${event}?run_id=${{ github.run_id }}" || true

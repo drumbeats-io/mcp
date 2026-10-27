@@ -20,6 +20,9 @@ npm-debug.log*
 # MCP bundle build artifact
 *.mcpb
 
+# npm pack output (the release workflow packs and tests the tarball)
+*.tgz
+
 # OS / editor
 .DS_Store
 .idea/
