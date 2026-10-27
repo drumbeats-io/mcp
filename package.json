@@ -49,7 +49,10 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"start": "node dist/server-http.js",
-		"start:stdio": "node dist/stdio.js"
+		"start:stdio": "node dist/stdio.js",
+		"scenario": "node scripts/scenario/run.js",
+		"release:bump": "node scripts/release/bump.js",
+		"release:check": "node scripts/release/check-version.js"
 	},
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^1.29.0",

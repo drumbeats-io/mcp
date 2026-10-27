@@ -46,6 +46,9 @@ We use [Conventional Commits](https://www.conventionalcommits.org/): `feat:`,
 release reasoning. Keep the [CHANGELOG](./CHANGELOG.md) `Unreleased` section
 updated in the same PR as any user-facing change.
 
+Merging to `main` releases nothing. Releases are cut by pushing a version tag;
+see [RELEASING.md](./RELEASING.md).
+
 ### Developer Certificate of Origin (DCO)
 
 Sign off every commit to certify you have the right to submit it under the

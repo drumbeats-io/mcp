@@ -36,6 +36,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Version fields agree
+        run: node scripts/release/check-version.js
+
       - name: Lint (Biome)
         run: npm run lint
 
