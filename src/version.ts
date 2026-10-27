@@ -19,6 +19,6 @@ export const SERVER_INSTRUCTIONS =
   'Most monitor and incident tools need a projectId, so call list_projects first to see the projects ' +
   'this key can access. Then: create_monitor to add a monitor (cron, heartbeat, or HTTP uptime); ' +
   'list_monitors / get_monitor / get_monitor_history to inspect; pause_monitor / resume_monitor to mute ' +
-  'or restore; get_uptime_summary for a project SLA rollup; list_incidents / manage_incident to triage ' +
+  'or restore; ping_start / ping_success / ping_failure to report a job run without curl; get_uptime_summary for a project SLA rollup; list_incidents / manage_incident to triage ' +
   'downtime. The check_http, check_ssl, and check_dns diagnostics need no account or API key — use them ' +
   'for ad-hoc checks anytime.'

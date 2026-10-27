@@ -47,8 +47,8 @@ describe('every registered tool declares an outputSchema', () => {
   const { server, tools } = recordingServer()
   registerTools(server, ctx)
 
-  it('registered all sixteen tools', () => {
-    expect(tools).toHaveLength(16)
+  it('registered all nineteen tools', () => {
+    expect(tools).toHaveLength(19)
   })
 
   it.each(tools.map((tool) => [tool.name, tool] as const))('%s has a non-empty outputSchema', (_name, tool) => {
