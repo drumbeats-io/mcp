@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-27
+
 ### Changed
 
 - Updated runtime dependencies: `@modelcontextprotocol/sdk` 1.29.0 → 1.32.2, `zod` 4.4.3 → 4.6.7, and `express` 5.2.1 → 5.3.0. No tool, parameter, or output changed.
@@ -102,7 +104,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   typecheck, test, build, and an AI-authorship guard), CodeQL, and Dependabot.
 - Container build (multi-stage `Dockerfile`) and `.mcpb` bundle manifest stub.
 
-[Unreleased]: https://github.com/drumbeats-io/mcp/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/drumbeats-io/mcp/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/drumbeats-io/mcp/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/drumbeats-io/mcp/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/drumbeats-io/mcp/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/drumbeats-io/mcp/compare/v0.3.0...v0.4.0
