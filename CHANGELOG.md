@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-27
+
 ### Added
 
 - Three heartbeat ping tools, bringing the tool count to nineteen: `ping_start`, `ping_success`, and `ping_failure`. Each sends `POST /v1/ping/:monitorId/:event` on the beats service, so an agent can report a job run without a `curl` to the ping URL — useful where outbound HTTP needs an allowlist, such as Claude Code cloud scheduled tasks. Inputs: `monitor_id` (UUID), optional `run_id` to pair a start with its finish, optional `message` (short note), and optional `payload` (longer text, first 10 KB stored). `ping_start` generates and returns a `run_id` when none is given. A paused monitor comes back as `recorded: false` instead of an error. The tools sit under the `manage_monitors` scope, like the other monitor write tools.
@@ -92,7 +94,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   typecheck, test, build, and an AI-authorship guard), CodeQL, and Dependabot.
 - Container build (multi-stage `Dockerfile`) and `.mcpb` bundle manifest stub.
 
-[Unreleased]: https://github.com/drumbeats-io/mcp/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/drumbeats-io/mcp/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/drumbeats-io/mcp/compare/v0.4.1...v0.5.0
+[0.4.1]: https://github.com/drumbeats-io/mcp/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/drumbeats-io/mcp/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/drumbeats-io/mcp/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/drumbeats-io/mcp/compare/v0.2.0...v0.2.1
