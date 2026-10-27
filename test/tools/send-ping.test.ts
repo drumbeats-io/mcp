@@ -60,7 +60,7 @@ describe('ping_start / ping_success / ping_failure', () => {
     )
     const runId = structuredOf<{ run_id: string }>(result).run_id
     expect(runId).toMatch(/^[0-9a-f-]{36}$/)
-    expect((calls[0]?.body as { run_id?: string }).run_id).toBe(runId)
+    expect((calls[0]?.body as { run_id?: string } | undefined)?.run_id).toBe(runId)
   })
 
   it('success and failure do not invent a run_id', async () => {

@@ -29,7 +29,7 @@ describe('create_monitor — valid combinations', () => {
     expect(result.isError).toBeFalsy()
     expect(calls[0]?.method).toBe('POST')
     expect(calls[0]?.path).toBe('/v1/monitors')
-    expect((calls[0]?.body as { type: string }).type).toBe(type)
+    expect((calls[0]?.body as { type: string } | undefined)?.type).toBe(type)
   })
 
   it('accepts UPTIME_HTTP with uptime_url and uptime fields', async () => {
@@ -44,7 +44,7 @@ describe('create_monitor — valid combinations', () => {
       uptime_expected_status: [200],
     })
     expect(result.isError).toBeFalsy()
-    expect((calls[0]?.body as { uptime_url: string }).uptime_url).toBe('https://example.com')
+    expect((calls[0]?.body as { uptime_url: string } | undefined)?.uptime_url).toBe('https://example.com')
   })
 
   it('passes notification wiring through to the API', async () => {
@@ -56,7 +56,7 @@ describe('create_monitor — valid combinations', () => {
       schedule: '0 3 * * *',
       notification_channel_ids: ['11111111-1111-4111-8111-111111111111'],
     })
-    expect((calls[0]?.body as { notification_channel_ids: string[] }).notification_channel_ids).toEqual([
+    expect((calls[0]?.body as { notification_channel_ids: string[] } | undefined)?.notification_channel_ids).toEqual([
       '11111111-1111-4111-8111-111111111111',
     ])
   })
@@ -71,7 +71,7 @@ describe('create_monitor — valid combinations', () => {
       description: null,
     })
     expect(result.isError).toBeFalsy()
-    expect((calls[0]?.body as { description: unknown }).description).toBeNull()
+    expect((calls[0]?.body as { description: unknown } | undefined)?.description).toBeNull()
   })
 
   it('accepts grace_period_seconds at the API floor of 15', async () => {
@@ -97,7 +97,7 @@ describe('create_monitor — valid combinations', () => {
       uptime_locations: ['eu-central'],
     })
     expect(result.isError).toBeFalsy()
-    expect((calls[0]?.body as { uptime_locations: string[] }).uptime_locations).toEqual(['eu-central'])
+    expect((calls[0]?.body as { uptime_locations: string[] } | undefined)?.uptime_locations).toEqual(['eu-central'])
   })
 
   it('accepts uptime_locations with both eu-central and us-east', async () => {
@@ -111,7 +111,10 @@ describe('create_monitor — valid combinations', () => {
       uptime_locations: ['eu-central', 'us-east'],
     })
     expect(result.isError).toBeFalsy()
-    expect((calls[0]?.body as { uptime_locations: string[] }).uptime_locations).toEqual(['eu-central', 'us-east'])
+    expect((calls[0]?.body as { uptime_locations: string[] } | undefined)?.uptime_locations).toEqual([
+      'eu-central',
+      'us-east',
+    ])
   })
 })
 
