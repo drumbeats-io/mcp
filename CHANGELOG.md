@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-10-28
+
 ### Added
 
 - Each GitHub release has the Claude Desktop bundle (`drumbeats-mcp-vX.Y.Z.mcpb`) attached again. The release workflow builds it from the same tarball as the npm package and checks that it starts before releasing. Releases 0.4.0 to 0.5.1 shipped without one.
@@ -114,7 +116,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   typecheck, test, build, and an AI-authorship guard), CodeQL, and Dependabot.
 - Container build (multi-stage `Dockerfile`) and `.mcpb` bundle manifest stub.
 
-[Unreleased]: https://github.com/drumbeats-io/mcp/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/drumbeats-io/mcp/compare/v0.5.2...HEAD
+[0.5.2]: https://github.com/drumbeats-io/mcp/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/drumbeats-io/mcp/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/drumbeats-io/mcp/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/drumbeats-io/mcp/compare/v0.4.0...v0.4.1
