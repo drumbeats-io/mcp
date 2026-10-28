@@ -12,7 +12,7 @@
   <a href="https://www.npmjs.com/package/@drumbeats/mcp"><img alt="npm" src="https://img.shields.io/npm/v/@drumbeats/mcp.svg"></a>
   <a href="./LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg"></a>
   <a href="https://glama.ai/mcp/servers/drumbeats-io/mcp"><img alt="drumbeats-io/mcp MCP server" src="https://glama.ai/mcp/servers/drumbeats-io/mcp/badges/score.svg"></a>
-  <a href="https://smithery.ai/servers/drumbeats/drumbeats-mcp"><img alt="smithery badge" src="https://smithery.ai/badge/drumbeats/drumbeats-mcp"></a>
+  <a href="https://smithery.ai/servers/drumbeats/drumbeats-mcp"><img alt="Smithery" src="https://img.shields.io/badge/Smithery-listed-orange"></a>
 </p>
 
 [Drumbeats](https://drumbeats.io) watches cron jobs, background workers and websites.
