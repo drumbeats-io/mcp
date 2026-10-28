@@ -7,7 +7,8 @@ does everything and stops at the first failure:
 1. **Verify.** The tag must be on `main`, and every version field must equal the tag.
    Lint, typecheck, tests and build run, then `npm pack` makes the exact tarball
    npm will get, and the [scenario](#the-scenario) runs against that tarball and the
-   production API.
+   production API. The Claude Desktop bundle (`.mcpb`) is built from the same
+   tarball and must start and report the version.
 2. **Hosted server.** Once verify has passed, a maintainer deploys the hosted
    server (the workflow holds no deploy credentials). The job waits up to an hour
    until `https://api.drumbeats.io/mcp/healthz` reports the new version, then
@@ -15,7 +16,8 @@ does everything and stops at the first failure:
 3. **npm.** Publishes the verified tarball with trusted publishing (no npm token)
    and provenance, then waits until npm serves it.
 4. **GitHub release.** Notes come from the version's CHANGELOG section; the title
-   is the tag's message.
+   is the tag's message. The `.mcpb` bundle is attached, which is what the README
+   and drumbeats.io/connect link to for Claude Desktop.
 5. **MCP Registry.** Publishes `server.json` with GitHub's OIDC login (no personal
    token) and checks the registry lists the version.
 6. **Report.** The run summary shows the version live on the hosted server, npm

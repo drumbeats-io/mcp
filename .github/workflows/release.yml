@@ -98,6 +98,32 @@ jobs:
           path: drumbeats-mcp-${{ steps.meta.outputs.version }}.tgz
           if-no-files-found: error
 
+      # The Claude Desktop bundle is built from the same tarball, with the
+      # production dependencies from the lockfile, so it runs the code npm gets.
+      - name: Build the Claude Desktop bundle (.mcpb)
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          mkdir bundle
+          tar xzf "drumbeats-mcp-$VERSION.tgz" -C bundle
+          cp package-lock.json .mcpbignore bundle/package/
+          (cd bundle/package && npm ci --omit=dev --ignore-scripts)
+          npx -y @anthropic-ai/mcpb@2.1.2 validate bundle/package/manifest.json
+          npx -y @anthropic-ai/mcpb@2.1.2 pack bundle/package "drumbeats-mcp-v$VERSION.mcpb"
+          mkdir bundle-check
+          unzip -q "drumbeats-mcp-v$VERSION.mcpb" -d bundle-check
+          init='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"release","version":"1"}}}'
+          got="$( (echo "$init"; sleep 5) | DRUMBEATS_API_KEY=placeholder node bundle-check/dist/stdio.js | head -1 | jq -r .result.serverInfo.version)"
+          [ "$got" = "$VERSION" ] || { echo "::error::The bundle reports ${got:-nothing}, expected $VERSION."; exit 1; }
+          echo "Bundle starts and reports $got."
+
+      - name: Keep the bundle for the GitHub release
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: mcpb-bundle
+          path: drumbeats-mcp-v${{ steps.meta.outputs.version }}.mcpb
+          if-no-files-found: error
+
   hosted:
     name: Wait for the hosted server
     needs: verify
@@ -163,10 +189,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - name: Create the release from the CHANGELOG
+      - name: Get the Claude Desktop bundle
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: mcpb-bundle
+
+      - name: Create the release from the CHANGELOG, with the bundle attached
         run: |
           node scripts/release/notes.js "$VERSION" > notes.md
-          gh release create "$GITHUB_REF_NAME" --verify-tag --latest --title "$TITLE" --notes-file notes.md
+          gh release create "$GITHUB_REF_NAME" "drumbeats-mcp-v$VERSION.mcpb" --verify-tag --latest --title "$TITLE" --notes-file notes.md
 
   registry:
     name: MCP Registry

@@ -4,7 +4,7 @@
 	"display_name": "Drumbeats",
 	"version": "0.5.1",
 	"icon": "icon.png",
-	"description": "Operate your Drumbeats monitoring from any AI client — create monitors, triage incidents, and run HTTP/SSL/DNS checks in natural language.",
+	"description": "Create and manage your Drumbeats cron, heartbeat and uptime monitors, report job runs and handle incidents, all from Claude.",
 	"author": {
 		"name": "Lucky S Software",
 		"url": "https://luckys.dev"
@@ -27,7 +27,7 @@
 		"api_key": {
 			"type": "string",
 			"title": "Drumbeats API key",
-			"description": "An account-scoped Drumbeats API key (dk_…). Create one in your Drumbeats account settings.",
+			"description": "Your Drumbeats API key (dk_…). Create one at drumbeats.io/account/api-keys.",
 			"sensitive": true,
 			"required": true
 		}

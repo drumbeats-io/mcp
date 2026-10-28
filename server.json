@@ -1,7 +1,7 @@
 {
 	"$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
 	"name": "io.github.drumbeats-io/mcp",
-	"description": "Operate Drumbeats monitoring from any AI client: cron/uptime monitors, incidents, HTTP/SSL/DNS.",
+	"description": "Manage Drumbeats cron, heartbeat and uptime monitors, report job runs and handle incidents.",
 	"repository": {
 		"url": "https://github.com/drumbeats-io/mcp",
 		"source": "github"
@@ -20,7 +20,7 @@
 			"environmentVariables": [
 				{
 					"name": "DRUMBEATS_API_KEY",
-					"description": "Account-scoped Drumbeats API key (dk_...). Optional \u2014 the HTTP/SSL/DNS diagnostic tools work with no key.",
+					"description": "Drumbeats API key (dk_...). Optional: the HTTP, SSL and DNS checks work without one.",
 					"isRequired": false,
 					"isSecret": true
 				}
