@@ -2,7 +2,7 @@
 	"name": "@drumbeats/mcp",
 	"version": "0.5.1",
 	"mcpName": "io.github.drumbeats-io/mcp",
-	"description": "Official Model Context Protocol (MCP) server for Drumbeats — operate your monitoring from any AI client: create monitors, triage incidents, and run HTTP/SSL/DNS checks in natural language.",
+	"description": "Official MCP server for Drumbeats. Create and manage cron, heartbeat and uptime monitors, report job runs and handle incidents from Claude, Cursor or VS Code.",
 	"license": "Apache-2.0",
 	"type": "module",
 	"author": "Lucky S Software (https://luckys.dev)",

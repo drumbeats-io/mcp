@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Each GitHub release has the Claude Desktop bundle (`drumbeats-mcp-vX.Y.Z.mcpb`) attached again. The release workflow builds it from the same tarball as the npm package and checks that it starts before releasing. Releases 0.4.0 to 0.5.1 shipped without one.
+
+### Changed
+
+- New README: setup for the hosted server and for `npx`, client by client, and the tools grouped by task with the permission each one needs. The descriptions on npm, the MCP Registry and the Claude Desktop bundle are shorter and say what the server does.
+- The release workflow uses the Node.js 24 versions of the GitHub artifact actions.
+
 ## [0.5.1] - 2026-10-27
 
 ### Changed

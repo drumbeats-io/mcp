@@ -12,5 +12,5 @@ if (!body) {
 }
 const { name } = readJson('package.json')
 console.log(
-  `${body}\n\nPublished to npm as \`${name}@${version}\` and live on the hosted server at \`https://api.drumbeats.io/mcp\`.`
+  `${body}\n\nPublished to npm as \`${name}@${version}\` and live on the hosted server at \`https://api.drumbeats.io/mcp\`. For Claude Desktop, download \`drumbeats-mcp-v${version}.mcpb\` below and open it.`
 )
