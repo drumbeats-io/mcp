@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New README: setup for the hosted server and for `npx`, client by client, and the tools grouped by task with the permission each one needs. The descriptions on npm, the MCP Registry and the Claude Desktop bundle are shorter and say what the server does.
 - The release workflow uses the Node.js 24 versions of the GitHub artifact actions.
+- Updated development tooling: `typescript` 6.0.3 → 7.0.2, `vitest` 4.1.10 → 5.0.5, and the CodeQL workflow's `github/codeql-action` to v4.37.3, now pinned by commit SHA. The compiled JavaScript in the published package is unchanged; the type declaration files differ only in quote style and the order of union members.
 
 ## [0.5.1] - 2026-10-27
 
