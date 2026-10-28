@@ -1,6 +1,6 @@
 {
 	"name": "@drumbeats/mcp",
-	"version": "0.5.1",
+	"version": "0.5.2",
 	"mcpName": "io.github.drumbeats-io/mcp",
 	"description": "Official MCP server for Drumbeats. Create and manage cron, heartbeat and uptime monitors, report job runs and handle incidents from Claude, Cursor or VS Code.",
 	"license": "Apache-2.0",

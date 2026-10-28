@@ -2,7 +2,7 @@
 	"dxt_version": "0.1",
 	"name": "drumbeats-mcp",
 	"display_name": "Drumbeats",
-	"version": "0.5.1",
+	"version": "0.5.2",
 	"icon": "icon.png",
 	"description": "Create and manage your Drumbeats cron, heartbeat and uptime monitors, report job runs and handle incidents, all from Claude.",
 	"author": {

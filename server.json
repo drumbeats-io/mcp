@@ -6,14 +6,14 @@
 		"url": "https://github.com/drumbeats-io/mcp",
 		"source": "github"
 	},
-	"version": "0.5.1",
+	"version": "0.5.2",
 	"websiteUrl": "https://drumbeats.io",
 	"packages": [
 		{
 			"registryType": "npm",
 			"registryBaseUrl": "https://registry.npmjs.org",
 			"identifier": "@drumbeats/mcp",
-			"version": "0.5.1",
+			"version": "0.5.2",
 			"transport": {
 				"type": "stdio"
 			},
