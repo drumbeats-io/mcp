@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `glama.json` at the repository root names the maintainers (`urtuba`, `k-salih`), which is how Glama lets an organization claim its server listing.
+
+### Removed
+
+- The Smithery badge in the README. Smithery became part of Arcade and shut down its MCP proxy on 31 October 2026; the badge linked to a page that no longer exists.
+
 ## [0.5.2] - 2026-10-28
 
 ### Added
