@@ -25,3 +25,8 @@ updates:
     commit-message:
       prefix: ci
       include: scope
+    groups:
+      # CodeQL fails when init and analyze run different versions, so bump them together.
+      codeql-action:
+        patterns:
+          - 'github/codeql-action*'
